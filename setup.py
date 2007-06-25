@@ -15,7 +15,7 @@ from distutils.core import setup
 from distutils.extension import Extension
 from distutils import sysconfig
 
-BUILD_VERSION = "1.3"
+BUILD_VERSION = "HEAD"
 
 # setup extra compilation and linking args
 libs = []
@@ -23,6 +23,10 @@ extraLinkArgs = []
 if sys.platform == "win32":
     extraLinkArgs.append("-Wl,--add-stdcall-alias")
     extraLinkArgs.append("-Wl,--enable-stdcall-fixup")
+    importLibraryDir = os.environ.get("CX_LOGGING_LIB_DIR")
+    if importLibraryDir is not None:
+        importLibraryName = os.path.join(importLibraryDir, "libcx_Logging.a")
+        extraLinkArgs.append("-Wl,--out-implib=%s" % importLibraryName)
     if sys.version_info[:2] < (2, 4):
         import win32api
         extraLinkArgs.append(win32api.GetModuleFileName(sys.dllhandle))
