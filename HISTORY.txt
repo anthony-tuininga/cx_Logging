@@ -1,0 +1,22 @@
+Changes from 1.2 to 1.3
+ 1) Fix support for importing in Python 2.5 on Windows. The module now uses the
+    .pyd extension instead of the .dll extension since support for importing
+    modules with the .dll extension was removed in Python 2.5.
+ 2) Add support for 64-bit Python installations, particularly in Python 2.5.
+
+Changes from 1.1 to 1.2
+ 1) Changed macros to support building with the Microsoft compiler as
+    requested by Christopher Mioni.
+ 2) Added keywords arguments for the StartLogging() method as requested by
+    Christopher Mioni.
+ 3) Use __DATE__ and __TIME__ to determine the date and time of the build
+    rather than passing it through directly.
+ 4) Added support for getting a file object for the file that is currently
+    being logged to or None if no logging is taking place.
+
+
+Changes from 1.0 to 1.1
+ 1) Raise an exception if a write fails during logging.
+ 2) Add module constants version and buildtime in order to aid in support and
+    debugging.
+
