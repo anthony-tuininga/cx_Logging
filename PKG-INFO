@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: cx_Logging
+Version: 1.3
+Summary: Python interface for logging
+Home-page: http://starship.python.net/crew/atuining
+Author: Anthony Tuininga
+Author-email: anthony.tuininga@gmail.com
+License: See LICENSE.txt
+Description: Python interface for logging
+Platform: UNKNOWN
