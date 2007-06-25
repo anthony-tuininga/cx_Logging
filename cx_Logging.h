@@ -53,24 +53,24 @@ typedef struct {
 
 
 // define logging levels
-#define LOG_LEVEL_DEBUG			10
-#define LOG_LEVEL_INFO			20
-#define LOG_LEVEL_WARNING		30
-#define LOG_LEVEL_ERROR			40
-#define LOG_LEVEL_CRITICAL		50
-#define LOG_LEVEL_NONE			100
+#define LOG_LEVEL_DEBUG                 10
+#define LOG_LEVEL_INFO                  20
+#define LOG_LEVEL_WARNING               30
+#define LOG_LEVEL_ERROR                 40
+#define LOG_LEVEL_CRITICAL              50
+#define LOG_LEVEL_NONE                  100
 
 
 // define defaults
-#define DEFAULT_MAX_FILE_SIZE		1024 * 1024
-#define DEFAULT_PREFIX			"%t"
+#define DEFAULT_MAX_FILE_SIZE           1024 * 1024
+#define DEFAULT_PREFIX                  "%t"
 
 
 // declarations of methods exported
 CX_LOGGING_API int StartLogging(const char*, unsigned long, unsigned long,
-		unsigned long, const char *);
+                unsigned long, const char *);
 CX_LOGGING_API int StartLoggingForPythonThread(const char*, unsigned long,
-		unsigned long, unsigned long, const char *);
+                unsigned long, unsigned long, const char *);
 CX_LOGGING_API int StartLoggingStderr(unsigned long, const char *);
 CX_LOGGING_API int StartLoggingStdout(unsigned long, const char *);
 CX_LOGGING_API int StartLoggingFromEnvironment(void);
@@ -107,7 +107,7 @@ CX_LOGGING_API int LogGUID(unsigned long, const char*, const IID*);
 
 #ifdef WIN32
 CX_LOGGING_API int StartLoggingW(const OLECHAR*, unsigned long, unsigned long,
-		unsigned long, const OLECHAR*);
+                unsigned long, const OLECHAR*);
 CX_LOGGING_API int LogMessageW(unsigned long, const OLECHAR*);
 CX_LOGGING_API int LogDebugW(const OLECHAR*);
 CX_LOGGING_API int LogInfoW(const OLECHAR*);

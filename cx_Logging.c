@@ -10,34 +10,34 @@
 #include <sys/stat.h>
 #endif
 
-#define THREAD_STATE_KEY	"cx_Logging"
-#define ENV_NAME_FILE_NAME	"CX_LOGGING_FILE_NAME"
-#define ENV_NAME_LEVEL		"CX_LOGGING_LEVEL"
-#define ENV_NAME_MAX_FILES	"CX_LOGGING_MAX_FILES"
-#define ENV_NAME_MAX_FILE_SIZE	"CX_LOGGING_MAX_FILE_SIZE"
-#define ENV_NAME_PREFIX		"CX_LOGGING_PREFIX"
-#define THREAD_FORMAT		"%.5ld"
-#define DATE_FORMAT		"%.4d/%.2d/%.2d"
-#define TIME_FORMAT		"%.2d:%.2d:%.2d.%.3d"
-#define TICKS_FORMAT		"%.10d"
+#define THREAD_STATE_KEY        "cx_Logging"
+#define ENV_NAME_FILE_NAME      "CX_LOGGING_FILE_NAME"
+#define ENV_NAME_LEVEL          "CX_LOGGING_LEVEL"
+#define ENV_NAME_MAX_FILES      "CX_LOGGING_MAX_FILES"
+#define ENV_NAME_MAX_FILE_SIZE  "CX_LOGGING_MAX_FILE_SIZE"
+#define ENV_NAME_PREFIX         "CX_LOGGING_PREFIX"
+#define THREAD_FORMAT           "%.5ld"
+#define DATE_FORMAT             "%.4d/%.2d/%.2d"
+#define TIME_FORMAT             "%.2d:%.2d:%.2d.%.3d"
+#define TICKS_FORMAT            "%.10d"
 
 
 // define platform specific methods for manipulating locks
 #ifdef WIN32
 #include <malloc.h>
-#define INITIALIZE_LOCK(lock)	InitializeCriticalSection(&lock)
-#define ACQUIRE_LOCK(lock)	EnterCriticalSection(&lock)
-#define RELEASE_LOCK(lock)	LeaveCriticalSection(&lock)
+#define INITIALIZE_LOCK(lock)   InitializeCriticalSection(&lock)
+#define ACQUIRE_LOCK(lock)      EnterCriticalSection(&lock)
+#define RELEASE_LOCK(lock)      LeaveCriticalSection(&lock)
 #else
-#define INITIALIZE_LOCK(lock)	sem_init(&lock, 0, 1)
-#define ACQUIRE_LOCK(lock)	sem_wait(&lock)
-#define RELEASE_LOCK(lock)	sem_post(&lock)
+#define INITIALIZE_LOCK(lock)   sem_init(&lock, 0, 1)
+#define ACQUIRE_LOCK(lock)      sem_wait(&lock)
+#define RELEASE_LOCK(lock)      sem_post(&lock)
 #endif
 
 // define macro to get the build version as a string
-#define xstr(s)			str(s)
-#define str(s)			#s
-#define BUILD_VERSION_STRING	xstr(BUILD_VERSION)
+#define xstr(s)                 str(s)
+#define str(s)                  #s
+#define BUILD_VERSION_STRING    xstr(BUILD_VERSION)
 
 
 // define Py_ssize_t for versions before Python 2.5
@@ -58,8 +58,8 @@ static LOCK_TYPE gLoggingStateLock;
 //   Write the level to the file.
 //-----------------------------------------------------------------------------
 static int WriteLevel(
-    LoggingState *state,		// state to use for writing
-    unsigned long level)		// level to write to the file
+    LoggingState *state,                // state to use for writing
+    unsigned long level)                // level to write to the file
 {
     char temp[20];
     int result;
@@ -99,8 +99,8 @@ static int WriteLevel(
 //   Write the prefix to the file.
 //-----------------------------------------------------------------------------
 static int WritePrefix(
-    LoggingState *state,		// state to use for writing
-    unsigned long level)		// level at which to write
+    LoggingState *state,                // state to use for writing
+    unsigned long level)                // level at which to write
 {
 #ifdef WIN32
     SYSTEMTIME time;
@@ -201,7 +201,7 @@ static int WritePrefix(
 // if keeping it would exceed the maximum number of files to keep.
 //-----------------------------------------------------------------------------
 static int SwitchLogFiles(
-    LoggingState *state)		// state to use
+    LoggingState *state)                // state to use
 {
     unsigned long lastFileFound, i;
     struct stat statBuffer;
@@ -245,7 +245,7 @@ static int SwitchLogFiles(
 // if so, starts a new one.
 //-----------------------------------------------------------------------------
 static int CheckForLogFileFull(
-    LoggingState *state)		// state to use for writing
+    LoggingState *state)                // state to use for writing
 {
     long position;
 
@@ -288,9 +288,9 @@ static int CheckForLogFileFull(
 //   Write the message to the file.
 //-----------------------------------------------------------------------------
 static int WriteMessage(
-    LoggingState *state,		// state to use for writing
-    unsigned long level,		// level at which to write
-    const char *message)		// message to write
+    LoggingState *state,                // state to use for writing
+    unsigned long level,                // level at which to write
+    const char *message)                // message to write
 {
 #ifndef UNDER_CE
     if (CheckForLogFileFull(state) < 0)
@@ -318,10 +318,10 @@ static int WriteMessage(
 // arguments.
 //-----------------------------------------------------------------------------
 static int WriteMessageWithFormat(
-    LoggingState *state,		// state to stop logging for
-    unsigned long level,		// level at which message is written
-    const char *format,			// format of message to log
-    va_list arguments)			// argument list
+    LoggingState *state,                // state to stop logging for
+    unsigned long level,                // level at which message is written
+    const char *format,                 // format of message to log
+    va_list arguments)                  // argument list
 {
 #ifndef UNDER_CE
     if (CheckForLogFileFull(state) < 0)
@@ -350,7 +350,7 @@ static int WriteMessageWithFormat(
 // acquiring and releasing the lock twice would be detrimental to performance.
 //-----------------------------------------------------------------------------
 static int IsLoggingAtLevelForPython(
-    unsigned long level)		// desired level
+    unsigned long level)                // desired level
 {
     udt_LoggingState *loggingState;
     int result;
@@ -372,8 +372,8 @@ static int IsLoggingAtLevelForPython(
 //   Write a message for Python given the known logging state.
 //-----------------------------------------------------------------------------
 static int WriteMessageForPython(
-    unsigned long level,		// level at which message is written
-    const char *message)		// message to write
+    unsigned long level,                // level at which message is written
+    const char *message)                // message to write
 {
     udt_LoggingState *loggingState;
     int result = 0;
@@ -400,7 +400,7 @@ static int WriteMessageForPython(
 //   Free the logging state.
 //-----------------------------------------------------------------------------
 static void LoggingState_Free(
-    LoggingState *state)		// state to stop logging for
+    LoggingState *state)                // state to stop logging for
 {
     if (state->fp) {
         if (state->fileOwned) {
@@ -428,7 +428,7 @@ static void LoggingState_Free(
 // initial log messages to it.
 //-----------------------------------------------------------------------------
 static int LoggingState_OnCreate(
-    LoggingState *state)		// logging state just created
+    LoggingState *state)                // logging state just created
 {
     struct stat statBuffer;
 
@@ -469,12 +469,12 @@ static int LoggingState_OnCreate(
 //   Create a new logging state.
 //-----------------------------------------------------------------------------
 static LoggingState* LoggingState_New(
-    FILE *fp,				// file to associate
-    const char *fileName,		// name of file to open
-    unsigned long level,		// level to use
-    unsigned long maxFiles,		// maximum number of files
-    unsigned long maxFileSize,		// maximum size of each file
-    const char *prefix)			// prefix to use
+    FILE *fp,                           // file to associate
+    const char *fileName,               // name of file to open
+    unsigned long level,                // level to use
+    unsigned long maxFiles,             // maximum number of files
+    unsigned long maxFileSize,          // maximum size of each file
+    const char *prefix)                 // prefix to use
 {
     LoggingState *state;
     char *tmp;
@@ -557,8 +557,8 @@ static LoggingState* LoggingState_New(
 //   Set the level for the logging state.
 //-----------------------------------------------------------------------------
 static int LoggingState_SetLevel(
-    LoggingState *state,		// state on which to change level
-    unsigned long newLevel)		// new level to set
+    LoggingState *state,                // state on which to change level
+    unsigned long newLevel)             // new level to set
 {
     if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
         return -1;
@@ -584,7 +584,7 @@ static int LoggingState_SetLevel(
 //   Called when a Python logging state variable is freed.
 //-----------------------------------------------------------------------------
 void PythonLoggingState_Free(
-    udt_LoggingState *self)		// object being freed
+    udt_LoggingState *self)             // object being freed
 {
     if (self->state) {
         LoggingState_Free(self->state);
@@ -597,48 +597,48 @@ void PythonLoggingState_Free(
 // define logging state Python type
 static PyTypeObject gPythonLoggingStateType = {
     PyObject_HEAD_INIT(NULL)
-    0,					// ob_size
-    "cx_Logging.LoggingState",		// tp_name
-    sizeof(udt_LoggingState),		// tp_basicsize
-    0,					// tp_itemsize
+    0,                                  // ob_size
+    "cx_Logging.LoggingState",          // tp_name
+    sizeof(udt_LoggingState),           // tp_basicsize
+    0,                                  // tp_itemsize
     (destructor) PythonLoggingState_Free,
-					// tp_dealloc
-    0,					// tp_print
-    0,					// tp_getattr
-    0,					// tp_setattr
-    0,					// tp_compare
-    0,					// tp_repr
-    0,					// tp_as_number
-    0,					// tp_as_sequence
-    0,					// tp_as_mapping
-    0,					// tp_hash
-    0,					// tp_call
-    0,					// tp_str
-    0,					// tp_getattro
-    0,					// tp_setattro
-    0,					// tp_as_buffer
-    Py_TPFLAGS_DEFAULT,			// tp_flags
-    0,					// tp_doc
-    0,					// tp_traverse
-    0,					// tp_clear
-    0,					// tp_richcompare
-    0,					// tp_weaklistoffset
-    0,					// tp_iter
-    0,					// tp_iternext
-    0,					// tp_methods
-    0,					// tp_members
-    0,					// tp_getset
-    0,					// tp_base
-    0,					// tp_dict
-    0,					// tp_descr_get
-    0,					// tp_descr_set
-    0,					// tp_dictoffset
-    0,					// tp_init
-    0,					// tp_alloc
-    0,					// tp_new
-    0,					// tp_free
-    0,					// tp_is_gc
-    0					// tp_bases
+                                        // tp_dealloc
+    0,                                  // tp_print
+    0,                                  // tp_getattr
+    0,                                  // tp_setattr
+    0,                                  // tp_compare
+    0,                                  // tp_repr
+    0,                                  // tp_as_number
+    0,                                  // tp_as_sequence
+    0,                                  // tp_as_mapping
+    0,                                  // tp_hash
+    0,                                  // tp_call
+    0,                                  // tp_str
+    0,                                  // tp_getattro
+    0,                                  // tp_setattro
+    0,                                  // tp_as_buffer
+    Py_TPFLAGS_DEFAULT,                 // tp_flags
+    0,                                  // tp_doc
+    0,                                  // tp_traverse
+    0,                                  // tp_clear
+    0,                                  // tp_richcompare
+    0,                                  // tp_weaklistoffset
+    0,                                  // tp_iter
+    0,                                  // tp_iternext
+    0,                                  // tp_methods
+    0,                                  // tp_members
+    0,                                  // tp_getset
+    0,                                  // tp_base
+    0,                                  // tp_dict
+    0,                                  // tp_descr_get
+    0,                                  // tp_descr_set
+    0,                                  // tp_dictoffset
+    0,                                  // tp_init
+    0,                                  // tp_alloc
+    0,                                  // tp_new
+    0,                                  // tp_free
+    0,                                  // tp_is_gc
+    0                                   // tp_bases
 };
 
 
@@ -665,11 +665,11 @@ static PyObject* GetThreadStateDictionary(void)
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int StartLogging(
-    const char *fileName,		// name of file to write to
-    unsigned long level,		// level to use for logging
-    unsigned long maxFiles,		// maximum number of files to have
-    unsigned long maxFileSize,		// maximum size of each file
-    const char *prefix)			// prefix to use in logging
+    const char *fileName,               // name of file to write to
+    unsigned long level,                // level to use for logging
+    unsigned long maxFiles,             // maximum number of files to have
+    unsigned long maxFileSize,          // maximum size of each file
+    const char *prefix)                 // prefix to use in logging
 {
     LoggingState *loggingState, *origLoggingState;
 
@@ -693,11 +693,11 @@ CX_LOGGING_API int StartLogging(
 // assumed at this point that the Python interpreter lock is held.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int StartLoggingForPythonThread(
-    const char *fileName,		// name of file to write to
-    unsigned long level,		// level to use for logging
-    unsigned long maxFiles,		// maximum number of files to have
-    unsigned long maxFileSize,		// maximum size of each file
-    const char *prefix)			// prefix to use in logging
+    const char *fileName,               // name of file to write to
+    unsigned long level,                // level to use for logging
+    unsigned long maxFiles,             // maximum number of files to have
+    unsigned long maxFileSize,          // maximum size of each file
+    const char *prefix)                 // prefix to use in logging
 {
     udt_LoggingState *loggingState;
     int result;
@@ -742,8 +742,8 @@ CX_LOGGING_API int StartLoggingForPythonThread(
 //   Start logging to stderr.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int StartLoggingStderr(
-    unsigned long level,		// level to use for logging
-    const char *prefix)			// prefix to use for logging
+    unsigned long level,                // level to use for logging
+    const char *prefix)                 // prefix to use for logging
 {
     LoggingState *loggingState, *origLoggingState;
 
@@ -765,8 +765,8 @@ CX_LOGGING_API int StartLoggingStderr(
 //   Start logging to stdout.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int StartLoggingStdout(
-    unsigned long level,		// level to use for logging
-    const char *prefix)			// prefix to use for logging
+    unsigned long level,                // level to use for logging
+    const char *prefix)                 // prefix to use for logging
 {
     LoggingState *loggingState, *origLoggingState;
 
@@ -864,9 +864,9 @@ CX_LOGGING_API void StopLoggingForPythonThread(void)
 // as a va_list.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogMessageVaList(
-    unsigned long level,		// level to check for
-    const char *format,			// format of message to log
-    va_list arguments)			// argument list
+    unsigned long level,                // level to check for
+    const char *format,                 // format of message to log
+    va_list arguments)                  // argument list
 {
     int result = 0;
 
@@ -887,9 +887,9 @@ CX_LOGGING_API int LogMessageVaList(
 //   Log a message to the log file with a variable number of arguments.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogMessageV(
-    unsigned long level,		// level at which to log
-    const char *format,			// format of message to log
-    ...)				// arguments required for format
+    unsigned long level,                // level at which to log
+    const char *format,                 // format of message to log
+    ...)                                // arguments required for format
 {
     va_list arguments;
     int result;
@@ -908,9 +908,9 @@ CX_LOGGING_API int LogMessageV(
 // this thread is desired; if not, the normal LogMessageV() is invoked.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogMessageForPythonV(
-    unsigned long level,		// level at which to log
-    const char *format,			// format of message to log
-    ...)				// arguments required for format
+    unsigned long level,                // level at which to log
+    const char *format,                 // format of message to log
+    ...)                                // arguments required for format
 {
     udt_LoggingState *loggingState;
     va_list arguments;
@@ -939,8 +939,8 @@ CX_LOGGING_API int LogMessageForPythonV(
 //   Log a message to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogMessage(
-    unsigned long level,		// level at which to log
-    const char *message)		// message to log
+    unsigned long level,                // level at which to log
+    const char *message)                // message to log
 {
     int result = 0;
 
@@ -960,7 +960,7 @@ CX_LOGGING_API int LogMessage(
 //   Log a message at level LOG_LEVEL_DEBUG to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogDebug(
-    const char *message)		// message to log
+    const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_DEBUG, message);
 }
@@ -971,7 +971,7 @@ CX_LOGGING_API int LogDebug(
 //   Log a message at level LOG_LEVEL_INFO to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogInfo(
-    const char *message)		// message to log
+    const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_INFO, message);
 }
@@ -982,7 +982,7 @@ CX_LOGGING_API int LogInfo(
 //   Log a message at level LOG_LEVEL_WARNING to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogWarning(
-    const char *message)		// message to log
+    const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_WARNING, message);
 }
@@ -993,7 +993,7 @@ CX_LOGGING_API int LogWarning(
 //   Log a message at level LOG_LEVEL_ERROR to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogError(
-    const char *message)		// message to log
+    const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_ERROR, message);
 }
@@ -1004,7 +1004,7 @@ CX_LOGGING_API int LogError(
 //   Log a message at level LOG_LEVEL_CRITICAL to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogCritical(
-    const char *message)		// message to log
+    const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_CRITICAL, message);
 }
@@ -1015,7 +1015,7 @@ CX_LOGGING_API int LogCritical(
 //   Log a message regardless of the current logging level to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogTrace(
-    const char *message)		// message to log
+    const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_NONE, message);
 }
@@ -1042,7 +1042,7 @@ CX_LOGGING_API unsigned long GetLoggingLevel(void)
 //   Set the current logging level.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int SetLoggingLevel(
-    unsigned long newLevel)		// new level to use
+    unsigned long newLevel)             // new level to use
 {
     int result = 0;
 
@@ -1061,8 +1061,8 @@ CX_LOGGING_API int SetLoggingLevel(
 //   Log an error message from the Win32 subsystem and return -1.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogWin32Error(
-    DWORD errorCode,			// Win32 error code to log
-    const char *message)		// message to log
+    DWORD errorCode,                    // Win32 error code to log
+    const char *message)                // message to log
 {
     DWORD status;
     char *buffer;
@@ -1088,9 +1088,9 @@ CX_LOGGING_API int LogWin32Error(
 //   Log a GUID in human readable format to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogGUID(
-    unsigned long level,		// level at which to log
-    const char *prefix,			// prefix to print in front of it
-    const IID *iid)			// interface to print
+    unsigned long level,                // level at which to log
+    const char *prefix,                 // prefix to print in front of it
+    const IID *iid)                     // interface to print
 {
     int strLength, result = 0;
     OLECHAR str[128];
@@ -1123,10 +1123,10 @@ CX_LOGGING_API int LogGUID(
 //   Log the string representation of the Python object to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogPythonObject(
-    unsigned long logLevel,		// log level
-    const char *prefix,			// prefix for message
-    const char *name,			// name to display
-    PyObject *object)			// object to log
+    unsigned long logLevel,             // log level
+    const char *prefix,                 // prefix for message
+    const char *name,                   // name to display
+    PyObject *object)                   // object to log
 {
     PyObject *stringRep;
     int result;
@@ -1155,9 +1155,9 @@ CX_LOGGING_API int LogPythonObject(
 //   Base method for logging a Python exception.
 //-----------------------------------------------------------------------------
 static int BaseLogPythonException(
-    const char *message,		// message to log
-    PyObject *type,			// exception type
-    PyObject *value)			// exception value
+    const char *message,                // message to log
+    PyObject *type,                     // exception type
+    PyObject *value)                    // exception value
 {
     LogMessageForPythonV(LOG_LEVEL_ERROR, "Python exception encountered:");
     LogMessageForPythonV(LOG_LEVEL_ERROR, "    Internal Message: %s", message);
@@ -1172,7 +1172,7 @@ static int BaseLogPythonException(
 //   Log a Python exception without traceback.
 //-----------------------------------------------------------------------------
 static int LogPythonExceptionNoTraceback(
-    const char *message)		// message to log
+    const char *message)                // message to log
 {
     PyObject *type, *value, *traceback;
 
@@ -1191,9 +1191,9 @@ static int LogPythonExceptionNoTraceback(
 // transformed into None values automatically.
 //-----------------------------------------------------------------------------
 static void SetArgumentValue(
-    PyObject *args,			// argument tuple to modify
-    int position,			// position in tuple to modify
-    PyObject *value)			// value to place in tuple
+    PyObject *args,                     // argument tuple to modify
+    int position,                       // position in tuple to modify
+    PyObject *value)                    // value to place in tuple
 {
     if (!value)
         value = Py_None;
@@ -1207,10 +1207,10 @@ static void SetArgumentValue(
 //   Log a Python exception with traceback, if possible.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogPythonExceptionWithTraceback(
-    const char *message,		// message to log
-    PyObject *type,			// exception type
-    PyObject *value,			// exception value
-    PyObject *traceback)		// exception traceback
+    const char *message,                // message to log
+    PyObject *type,                     // exception type
+    PyObject *value,                    // exception value
+    PyObject *traceback)                // exception traceback
 {
     PyObject *module, *method, *args, *result, *line;
     Py_ssize_t i, numElements;
@@ -1262,7 +1262,7 @@ CX_LOGGING_API int LogPythonExceptionWithTraceback(
 // that fails then without.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogPythonException(
-    const char *message)		// message to display
+    const char *message)                // message to display
 {
     PyObject *type, *value, *traceback;
 
@@ -1280,8 +1280,8 @@ CX_LOGGING_API int LogPythonException(
 //   Log the message from error object.
 //-----------------------------------------------------------------------------
 static int LogMessageFromErrorObj(
-    unsigned long level,		// log level
-    PyObject *errorObj)			// error object to log
+    unsigned long level,                // log level
+    PyObject *errorObj)                 // error object to log
 {
     PyObject *message;
     char *buffer;
@@ -1305,8 +1305,8 @@ static int LogMessageFromErrorObj(
 //   Log the template id from the error object.
 //-----------------------------------------------------------------------------
 static int LogTemplateIdFromErrorObj(
-    unsigned long level,		// log level
-    PyObject *errorObj)			// error object to examine
+    unsigned long level,                // log level
+    PyObject *errorObj)                 // error object to examine
 {
     PyObject *templateId;
     int value;
@@ -1328,8 +1328,8 @@ static int LogTemplateIdFromErrorObj(
 //   Log the arguments stored on the error object.
 //-----------------------------------------------------------------------------
 static int LogArgumentsFromErrorObj(
-    unsigned long level,		// log level
-    PyObject *errorObj)			// error object to examine
+    unsigned long level,                // log level
+    PyObject *errorObj)                 // error object to examine
 {
     PyObject *dict, *items, *item, *key, *value;
     Py_ssize_t i, size;
@@ -1373,10 +1373,10 @@ static int LogArgumentsFromErrorObj(
 //   Get the template id from the error object.
 //-----------------------------------------------------------------------------
 static int LogListOfStringsFromErrorObj(
-    unsigned long level,		// log level
-    PyObject *errorObj,			// error object to examine
-    char *attributeName,		// attribute name to examine
-    const char *header)			// header to log
+    unsigned long level,                // log level
+    PyObject *errorObj,                 // error object to examine
+    char *attributeName,                // attribute name to examine
+    const char *header)                 // header to log
 {
     Py_ssize_t i, size;
     PyObject *list;
@@ -1409,7 +1409,7 @@ static int LogListOfStringsFromErrorObj(
 //   Log a configured Python exception.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogConfiguredException(
-    PyObject *errorObj)			// object to log
+    PyObject *errorObj)                 // object to log
 {
     unsigned long logLevel;
     PyObject *logLevelObj;
@@ -1462,7 +1462,7 @@ CX_LOGGING_API udt_LoggingState* GetLoggingState(void)
 // across thread boundaries.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int SetLoggingState(
-    udt_LoggingState *loggingState)	// logging state to set
+    udt_LoggingState *loggingState)     // logging state to set
 {
     PyObject *dict;
 
@@ -1491,9 +1491,9 @@ CX_LOGGING_API int IsLoggingStarted(void)
 //   Python implementation of LogMessage() where the level is already known.
 //-----------------------------------------------------------------------------
 static PyObject* LogMessageForPythonWithLevel(
-    unsigned long level,		// logging level
-    int startingIndex,			// starting index to look at
-    PyObject *args)			// Python arguments
+    unsigned long level,                // logging level
+    int startingIndex,                  // starting index to look at
+    PyObject *args)                     // Python arguments
 {
     PyObject *tempArgs, *temp, *format;
 
@@ -1533,8 +1533,8 @@ static PyObject* LogMessageForPythonWithLevel(
 //   Python implementation of LogMessage() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* LogMessageForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     unsigned long level;
     PyObject *tempArgs;
@@ -1556,8 +1556,8 @@ static PyObject* LogMessageForPython(
 //   Python implementation of Debug() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* LogDebugForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     return LogMessageForPythonWithLevel(LOG_LEVEL_DEBUG, 0, args);
 }
@@ -1568,8 +1568,8 @@ static PyObject* LogDebugForPython(
 //   Python implementation of Info() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* LogInfoForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     return LogMessageForPythonWithLevel(LOG_LEVEL_INFO, 0, args);
 }
@@ -1580,8 +1580,8 @@ static PyObject* LogInfoForPython(
 //   Python implementation of Warning() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* LogWarningForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     return LogMessageForPythonWithLevel(LOG_LEVEL_WARNING, 0, args);
 }
@@ -1592,8 +1592,8 @@ static PyObject* LogWarningForPython(
 //   Python implementation of Error() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* LogErrorForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     return LogMessageForPythonWithLevel(LOG_LEVEL_ERROR, 0, args);
 }
@@ -1604,8 +1604,8 @@ static PyObject* LogErrorForPython(
 //   Python implementation of Critical() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* LogCriticalForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     return LogMessageForPythonWithLevel(LOG_LEVEL_CRITICAL, 0, args);
 }
@@ -1616,8 +1616,8 @@ static PyObject* LogCriticalForPython(
 //   Python implementation of Trace() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* LogTraceForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     return LogMessageForPythonWithLevel(LOG_LEVEL_NONE, 0, args);
 }
@@ -1628,9 +1628,9 @@ static PyObject* LogTraceForPython(
 //   Python implementation of StartLogging() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* StartLoggingForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args,			// arguments
-    PyObject *keywordArgs)		// keyword arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args,                     // arguments
+    PyObject *keywordArgs)              // keyword arguments
 {
     static char *keywordList[] = {"fileName", "level", "maxFiles",
             "maxFileSize", "prefix", NULL};
@@ -1656,8 +1656,8 @@ static PyObject* StartLoggingForPython(
 //   Python implementation of StartLoggingStderr() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* StartLoggingStderrForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     unsigned long level;
     char *prefix;
@@ -1677,8 +1677,8 @@ static PyObject* StartLoggingStderrForPython(
 //   Python implementation of StartLoggingStdout() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* StartLoggingStdoutForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     unsigned long level;
     char *prefix;
@@ -1698,9 +1698,9 @@ static PyObject* StartLoggingStdoutForPython(
 //   Python implementation of StartLoggingForThread().
 //-----------------------------------------------------------------------------
 static PyObject *StartLoggingForThreadForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args,			// arguments
-    PyObject *keywordArgs)		// keyword arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args,                     // arguments
+    PyObject *keywordArgs)              // keyword arguments
 {
     static char *keywordList[] = {"fileName", "level", "maxFiles",
             "maxFileSize", "prefix", NULL};
@@ -1727,8 +1727,8 @@ static PyObject *StartLoggingForThreadForPython(
 //   Python implementation of StopLogging() exposed through the module.
 //-----------------------------------------------------------------------------
 static PyObject* StopLoggingForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     StopLogging();
     Py_INCREF(Py_None);
@@ -1741,8 +1741,8 @@ static PyObject* StopLoggingForPython(
 //   Python implementation of StartLoggingForThread().
 //-----------------------------------------------------------------------------
 static PyObject *StopLoggingForThreadForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     StopLoggingForPythonThread();
     Py_INCREF(Py_None);
@@ -1755,8 +1755,8 @@ static PyObject *StopLoggingForThreadForPython(
 //   Return the current logging level.
 //-----------------------------------------------------------------------------
 static PyObject* GetLoggingLevelForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     udt_LoggingState *loggingState;
 
@@ -1772,8 +1772,8 @@ static PyObject* GetLoggingLevelForPython(
 //   Set the logging level.
 //-----------------------------------------------------------------------------
 static PyObject* SetLoggingLevelForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     udt_LoggingState *loggingState;
     unsigned long newLevel;
@@ -1794,8 +1794,8 @@ static PyObject* SetLoggingLevelForPython(
 //   Return the current logging file as a Python object.
 //-----------------------------------------------------------------------------
 static PyObject* GetLoggingFileForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     udt_LoggingState *loggingState;
     PyObject *fileObj;
@@ -1822,8 +1822,8 @@ static PyObject* GetLoggingFileForPython(
 //   Return the current logging file name.
 //-----------------------------------------------------------------------------
 static PyObject* GetLoggingFileNameForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     udt_LoggingState *loggingState;
     PyObject *fileNameObj;
@@ -1848,8 +1848,8 @@ static PyObject* GetLoggingFileNameForPython(
 //   Return the current logging state for the thread.
 //-----------------------------------------------------------------------------
 static PyObject* GetLoggingStateForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     PyObject *loggingState;
 
@@ -1867,8 +1867,8 @@ static PyObject* GetLoggingStateForPython(
 // GetLoggingStateForPython().
 //-----------------------------------------------------------------------------
 static PyObject* SetLoggingStateForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     udt_LoggingState *loggingState;
 
@@ -1890,8 +1890,8 @@ static PyObject* SetLoggingStateForPython(
 // GetLoggingStateForPython().
 //-----------------------------------------------------------------------------
 static PyObject* LogExceptionForPython(
-    PyObject *self,			// passthrough argument
-    PyObject *args)			// arguments
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
 {
     PyObject *value, *configuredExcBaseClass = NULL;
     PyThreadState *threadState = NULL;
@@ -2020,11 +2020,11 @@ CX_LOGGING_API void initcx_Logging(void)
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int StartLoggingW(
-    const OLECHAR *fileName,		// name of file to write to
-    unsigned long level,		// level to use for logging
-    unsigned long maxFiles,		// maximum number of files to have
-    unsigned long maxFileSize,		// maximum size of each file
-    const OLECHAR *prefix)		// prefix to use in logging
+    const OLECHAR *fileName,            // name of file to write to
+    unsigned long level,                // level to use for logging
+    unsigned long maxFiles,             // maximum number of files to have
+    unsigned long maxFileSize,          // maximum size of each file
+    const OLECHAR *prefix)              // prefix to use in logging
 {
     char *tempFileName, *tempPrefix;
     unsigned size;
@@ -2051,8 +2051,8 @@ CX_LOGGING_API int StartLoggingW(
 //   Log a message to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogMessageW(
-    unsigned long level,		// level at which to log
-    const OLECHAR *message)		// message to log
+    unsigned long level,                // level at which to log
+    const OLECHAR *message)             // message to log
 {
     char *tempMessage;
     unsigned size;
@@ -2071,7 +2071,7 @@ CX_LOGGING_API int LogMessageW(
 //   Log a message at level LOG_LEVEL_DEBUG to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogDebugW(
-    const OLECHAR *message)		// message to log
+    const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_DEBUG, message);
 }
@@ -2082,7 +2082,7 @@ CX_LOGGING_API int LogDebugW(
 //   Log a message at level LOG_LEVEL_INFO to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogInfoW(
-    const OLECHAR *message)		// message to log
+    const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_INFO, message);
 }
@@ -2093,7 +2093,7 @@ CX_LOGGING_API int LogInfoW(
 //   Log a message at level LOG_LEVEL_WARNING to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogWarningW(
-    const OLECHAR *message)		// message to log
+    const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_WARNING, message);
 }
@@ -2104,7 +2104,7 @@ CX_LOGGING_API int LogWarningW(
 //   Log a message at level LOG_LEVEL_ERROR to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogErrorW(
-    const OLECHAR *message)		// message to log
+    const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_ERROR, message);
 }
@@ -2115,7 +2115,7 @@ CX_LOGGING_API int LogErrorW(
 //   Log a message at level LOG_LEVEL_CRITICAL to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogCriticalW(
-    const OLECHAR *message)		// message to log
+    const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_CRITICAL, message);
 }
@@ -2126,7 +2126,7 @@ CX_LOGGING_API int LogCriticalW(
 //   Log a message regardless of the current logging level to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogTraceW(
-    const OLECHAR *message)		// message to log
+    const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_NONE, message);
 }
@@ -2137,9 +2137,9 @@ CX_LOGGING_API int LogTraceW(
 //   Main routine for the DLL in Windows.
 //-----------------------------------------------------------------------------
 BOOL WINAPI DllMain(
-    HINSTANCE instance,			// handle to DLL
-    DWORD reason,			// reason for call
-    LPVOID reserved)			// reserved for future use
+    HINSTANCE instance,                 // handle to DLL
+    DWORD reason,                       // reason for call
+    LPVOID reserved)                    // reserved for future use
 {
     if (reason == DLL_PROCESS_ATTACH)
         INITIALIZE_LOCK(gLoggingStateLock);
