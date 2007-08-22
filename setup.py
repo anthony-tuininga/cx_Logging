@@ -27,9 +27,6 @@ if sys.platform == "win32":
     if importLibraryDir is not None:
         importLibraryName = os.path.join(importLibraryDir, "libcx_Logging.a")
         extraLinkArgs.append("-Wl,--out-implib=%s" % importLibraryName)
-    if sys.version_info[:2] < (2, 4):
-        import win32api
-        extraLinkArgs.append(win32api.GetModuleFileName(sys.dllhandle))
     libs.append("ole32")
 defineMacros = [
         ("CX_LOGGING_CORE",  None),
