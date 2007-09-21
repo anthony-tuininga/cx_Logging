@@ -38,15 +38,9 @@ dataFiles = None
 if sys.platform in ("win32", "cygwin"):
     baseName = "cx_Logging-doc"
     dataFiles = [ (baseName, [ "LICENSE.TXT", "HISTORY.TXT", "README.TXT" ]) ]
-    allFiles = []
-    for fileName in open("MANIFEST").readlines():
-        allFiles.append(fileName.strip())
-    for dir in ["html"]:
-        files = []
-        for name in allFiles:
-            if name.startswith(dir):
-                files.append(name)
-        dataFiles.append( ("%s/%s" % (baseName, dir), files) )
+    htmlFiles = [os.path.join("html", n) for n in os.listdir("html") \
+            if not n.startswith(".")]
+    dataFiles.append( ("%s/%s" % (baseName, "html"), htmlFiles) )
 
 # setup the extension
 extension = Extension(
