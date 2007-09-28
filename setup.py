@@ -20,39 +20,46 @@ from distutils import sysconfig
 
 BUILD_VERSION = "1.4b1"
 
-# define class to ensure that the import library is created properly
+# define class to ensure that linking against the library works for normal
+# C programs while maintaining the name that Python expects
 class build_ext(distutils.command.build_ext.build_ext):
-    user_options = distutils.command.build_ext.build_ext.user_options + [
-            ('build-implib=', None,
-             'directory for import library')
-    ]
+    if sys.platform == "win32":
+        user_options = distutils.command.build_ext.build_ext.user_options + [
+                ('build-implib=', None,
+                'directory for import library')
+        ]
 
     def build_extension(self, ext):
-        self.mkpath(self.build_implib)
-        self.importLibraryName = os.path.join(self.build_implib,
-                "lib%s.a" % ext.name)
+        extraLinkArgs = ext.extra_link_args = []
         if sys.platform == "win32":
-            extraLinkArgs = ext.extra_link_args = []
+            self.mkpath(self.build_implib)
+            self.importLibraryName = os.path.join(self.build_implib,
+                    "lib%s.a" % ext.name)
             extraLinkArgs.append("-Wl,--add-stdcall-alias")
             extraLinkArgs.append("-Wl,--enable-stdcall-fixup")
             extraLinkArgs.append("-Wl,--out-implib=%s" % \
                     self.importLibraryName)
             ext.libraries = ["ole32"]
+        else:
+            fileName = self.get_ext_filename(ext.name)
+            extraLinkArgs.append("-Wl,-soname,%s" % fileName)
         distutils.command.build_ext.build_ext.build_extension(self, ext)
 
     def finalize_options(self):
         distutils.command.build_ext.build_ext.finalize_options(self)
-        if self.build_implib is None:
+        if sys.platform == "win32" and self.build_implib is None:
             dir = "implib.%s-%s" % \
                     (distutils.util.get_platform(), sys.version[:3])
             self.build_implib = os.path.join("build", dir)
 
     def initialize_options(self):
         distutils.command.build_ext.build_ext.initialize_options(self)
-        self.build_implib = None
+        if sys.platform == "win32":
+            self.build_implib = None
 
 
-# define class to ensure that the import library is installed properly
+# define class to ensure that the import library (Windows) is installed
+# properly; this is not relevant on other platforms
 class install_data(distutils.command.install_data.install_data):
 
     def run(self):
