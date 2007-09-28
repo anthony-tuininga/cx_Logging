@@ -18,7 +18,7 @@ from distutils.core import setup
 from distutils.extension import Extension
 from distutils import sysconfig
 
-BUILD_VERSION = "1.4b1"
+BUILD_VERSION = "1.4"
 
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
