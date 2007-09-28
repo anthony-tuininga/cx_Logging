@@ -8,6 +8,7 @@
 #ifndef UNDER_CE
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #endif
 
 #define THREAD_STATE_KEY        "cx_Logging"
@@ -51,6 +52,47 @@ typedef int Py_ssize_t;
 // define global logging state
 static LoggingState *gLoggingState;
 static LOCK_TYPE gLoggingStateLock;
+
+
+//-----------------------------------------------------------------------------
+// OpenFileForWriting()
+//   Open the file for writing, if possible. In order to workaround the nasty
+// fact that on Windows file handles are inherited by child processes by
+// default and open files cannot be renamed, the handle opened by fopen() is
+// first cloned to a non-inheritable file handle and the original closed. In
+// this manner, any subprocess created does not prevent log file rotation from
+// occurring.
+//-----------------------------------------------------------------------------
+static FILE* OpenFileForWriting(const char* path)
+{
+#ifdef WIN32
+    #ifndef UNDER_CE
+    HANDLE sourceHandle, targetHandle;
+    int fd, dupfd;
+    #endif
+#endif
+    FILE *fp;
+
+    fp = fopen(path, "w");
+#ifdef WIN32
+    #ifndef UNDER_CE
+    if (!fp)
+        return NULL;
+    fd = fileno(fp);
+    sourceHandle = (HANDLE) _get_osfhandle(fd);
+    if (!DuplicateHandle(GetCurrentProcess(), sourceHandle,
+            GetCurrentProcess(), &targetHandle, 0, FALSE,
+            DUPLICATE_SAME_ACCESS)) {
+        fclose(fp);
+        return NULL;
+    }
+    fclose(fp);
+    dupfd = _open_osfhandle((intptr_t) targetHandle, O_TEXT);
+    fp = _fdopen(dupfd, "w");
+    #endif
+#endif
+    return fp;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -262,7 +304,7 @@ static int CheckForLogFileFull(
             state->fp = NULL;
             if (SwitchLogFiles(state) < 0)
                 return -1;
-            state->fp = fopen(state->fileName, "w");
+            state->fp = OpenFileForWriting(state->fileName);
             if (!state->fp)
                 return -1;
             if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
@@ -441,7 +483,7 @@ static int LoggingState_OnCreate(
         }
 #endif
         state->fileOwned = 1;
-        state->fp = fopen(state->fileName, "w");
+        state->fp = OpenFileForWriting(state->fileName);
         if (!state->fp)
             return -1;
     }
