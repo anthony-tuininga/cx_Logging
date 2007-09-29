@@ -8,6 +8,7 @@ Unix platforms
 
 """
 
+import distutils.command.bdist_rpm
 import distutils.command.build_ext
 import distutils.command.install_data
 import distutils.util
@@ -19,6 +20,23 @@ from distutils.extension import Extension
 from distutils import sysconfig
 
 BUILD_VERSION = "1.4"
+
+# define class to ensure the file name given includes the Python version
+class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
+
+    def run(self):
+        distutils.command.bdist_rpm.bdist_rpm.run(self)
+        specFile = os.path.join(self.rpm_base, "SPECS",
+                "%s.spec" % self.distribution.get_name())
+        queryFormat = "%{name}-%{version}-%{release}.%{arch}.rpm"
+        command = "rpm -q --qf '%s' --specfile %s" % (queryFormat, specFile)
+        origFileName = os.popen(command).read()
+        parts = origFileName.split("-")
+        parts.insert(2, "py%s%s" % sys.version_info[:2])
+        newFileName = "-".join(parts)
+        self.move_file(os.path.join("dist", origFileName),
+        os.path.join("dist", newFileName))
+
 
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
@@ -116,10 +134,10 @@ extension = Extension(
 # perform the setup
 setup(
         name = "cx_Logging",
-        cmdclass = dict(build_ext = build_ext, install_data = install_data),
+        cmdclass = dict(build_ext = build_ext, install_data = install_data,
+                bdist_rpm = bdist_rpm),
         version = BUILD_VERSION,
         description = "Python and C interfaces for logging",
-        license = "See LICENSE.txt",
         data_files = dataFiles,
         long_description = "Python and C interfaces for logging",
         author = "Anthony Tuininga",
