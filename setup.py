@@ -42,6 +42,7 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 # C programs while maintaining the name that Python expects
 class build_ext(distutils.command.build_ext.build_ext):
     global distutils
+    global os
     global sys
     if sys.platform == "win32":
         user_options = distutils.command.build_ext.build_ext.user_options + [
