@@ -1432,7 +1432,7 @@ static int LogListOfStringsFromErrorObj(
         Py_DECREF(list);
         return LogPythonException("cannot get size of list");
     }
-    LogMessageV(level, "    %s:", header);
+    LogMessageForPythonV(level, "    %s:", header);
     for (i = 0; i < size; i++) {
         buffer = PyString_AsString(PyList_GET_ITEM(list, i));
         if (!buffer) {
