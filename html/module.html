@@ -1,113 +1,304 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
-<link rel="STYLESHEET" href="cx_Logging.css" type='text/css' />
-<link rel="first" href="cx_Logging.html" title='cx_Logging' />
-<link rel='contents' href='contents.html' title="Contents" />
-<link rel='last' href='about.html' title='About this document...' />
-<link rel='help' href='about.html' title='About this document...' />
-<link rel="next" href="cinterface.html" />
-<link rel="prev" href="contents.html" />
-<link rel="parent" href="cx_Logging.html" />
-<link rel="next" href="pyStartLogging.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name='aesop' content='information' />
-<title>1. Module Interface</title>
-</head>
-<body>
-<div class="navigation">
-<div id='top-navigation-panel' xml:id='top-navigation-panel'>
-<table align="center" width="100%" cellpadding="0" cellspacing="2">
-<tr>
-<td class='online-navigation'><a rel="prev" title="Contents"
-  href="contents.html"><img src='previous.png'
-  border='0' height='32'  alt='Previous Page' width='32' /></a></td>
-<td class='online-navigation'><a rel="parent" title="cx_Logging"
-  href="cx_Logging.html"><img src='up.png'
-  border='0' height='32'  alt='Up one Level' width='32' /></a></td>
-<td class='online-navigation'><a rel="next" title="1.1 starting Logging"
-  href="pyStartLogging.html"><img src='next.png'
-  border='0' height='32'  alt='Next Page' width='32' /></a></td>
-<td align="center" width="100%">cx_Logging</td>
-<td class='online-navigation'><a rel="contents" title="Table of Contents"
-  href="contents.html"><img src='contents.png'
-  border='0' height='32'  alt='Contents' width='32' /></a></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-</tr></table>
-<div class='online-navigation'>
-<b class="navlabel">Previous:</b>
-<a class="sectref" rel="prev" href="contents.html">Contents</a>
-<b class="navlabel">Up:</b>
-<a class="sectref" rel="parent" href="cx_Logging.html">cx_Logging</a>
-<b class="navlabel">Next:</b>
-<a class="sectref" rel="next" href="pyStartLogging.html">1.1 Starting Logging</a>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Module Interface &mdash; cx_Logging v1.4 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:   '',
+        VERSION:    '1.4'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html" />
+    <link rel="index" title="Global index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="cx_Logging v1.4 documentation" href="index.html" />
+    <link rel="next" title="C Interface" href="cinterface.html" />
+    <link rel="prev" title="cx_Logging" href="index.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px"><a href="genindex.html" title="General Index" accesskey="I">index</a></li>
+        <li class="right"><a href="modindex.html" title="Global Module Index" accesskey="M">modules</a> |</li>
+          <li class="right"><a href="cinterface.html" title="C Interface" accesskey="N">next</a> |</li>
+          <li class="right"><a href="index.html" title="cx_Logging" accesskey="P">previous</a> |</li>
+        <li><a href="index.html">cx_Logging v1.4 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section">
+<h1 id="module-interface"><span id="module"></span><span id="module-cx_Logging"></span>Module Interface<a class="headerlink" href="#module-interface" title="Permalink to this headline">¶</a></h1>
+<div class="section">
+<h2 id="starting-logging">Starting Logging<a class="headerlink" href="#starting-logging" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cx_Logging.StartLogging">
+<!--#cx_Logging.StartLogging#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLogging</tt><big>(</big><em>fileName</em>, <em>level</em><span class="optional">[</span>, <em>maxFiles</em>, <em>maxFileSize</em>, <em>prefix</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.StartLogging" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to the specified file at the specified level.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.StartLoggingForThread">
+<!--#cx_Logging.StartLoggingForThread#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLoggingForThread</tt><big>(</big><em>fileName</em>, <em>level</em><span class="optional">[</span>, <em>maxFiles</em>, <em>maxFileSize</em>, <em>prefix</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.StartLoggingForThread" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to the specified file at the specified level, but only for the
+current Python thread.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.StartLoggingStderr">
+<!--#cx_Logging.StartLoggingStderr#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLoggingStderr</tt><big>(</big><em>level</em><span class="optional">[</span>, <em>prefix</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.StartLoggingStderr" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to stderr at the specified level.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.StartLoggingStdout">
+<!--#cx_Logging.StartLoggingStdout#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLoggingStdout</tt><big>(</big><em>level</em><span class="optional">[</span>, <em>prefix</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.StartLoggingStdout" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to stdout at the specified level.</dd></dl>
+
 </div>
-<hr /></div>
+<div class="section">
+<h2 id="stopping-logging">Stopping Logging<a class="headerlink" href="#stopping-logging" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cx_Logging.StopLogging">
+<!--#cx_Logging.StopLogging#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StopLogging</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.StopLogging" title="Permalink to this definition">¶</a></dt>
+<dd>Stop logging.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.StopLoggingForThread">
+<!--#cx_Logging.StopLoggingForThread#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StopLoggingForThread</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.StopLoggingForThread" title="Permalink to this definition">¶</a></dt>
+<dd>Stop logging for the given Python thread.</dd></dl>
+
 </div>
-<!--End of Navigation Panel-->
+<div class="section">
+<h2 id="logging-messages">Logging Messages<a class="headerlink" href="#logging-messages" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cx_Logging.Critical">
+<!--#cx_Logging.Critical#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">Critical</tt><big>(</big><em>format</em>, <em>*args</em><big>)</big><a class="headerlink" href="#cx_Logging.Critical" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the CRITICAL level. The format and arguments are the
+standard Python format.</dd></dl>
 
-<h1><a name="SECTION003000000000000000000"></a><a name="module"></a>
-<br>
-1. Module Interface
-</h1>
+<dl class="function">
+<dt id="cx_Logging.Debug">
+<!--#cx_Logging.Debug#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">Debug</tt><big>(</big><em>format</em>, <em>*args</em><big>)</big><a class="headerlink" href="#cx_Logging.Debug" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the DEBUG level. The format and arguments are the
+standard Python format.</dd></dl>
 
-<p>
+<dl class="function">
+<dt id="cx_Logging.Error">
+<!--#cx_Logging.Error#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">Error</tt><big>(</big><em>format</em>, <em>*args</em><big>)</big><a class="headerlink" href="#cx_Logging.Error" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the ERROR level. The format and arguments are the
+standard Python format.</dd></dl>
 
-<p><br /></p><hr class='online-navigation' />
-<div class='online-navigation'>
-<!--Table of Child-Links-->
-<a name="CHILD_LINKS"><strong>Subsections</strong></a>
+<dl class="function">
+<dt id="cx_Logging.Info">
+<!--#cx_Logging.Info#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">Info</tt><big>(</big><em>format</em>, <em>*args</em><big>)</big><a class="headerlink" href="#cx_Logging.Info" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the INFO level. The format and arguments are the
+standard Python format.</dd></dl>
 
-<ul class="ChildLinks">
-<li><a href="pyStartLogging.html">1.1 Starting Logging</a>
-<li><a href="pyStopLogging.html">1.2 Stopping Logging</a>
-<li><a href="pyLogMessages.html">1.3 Logging Messages</a>
-<li><a href="pyLogExceptions.html">1.4 Logging Exceptions</a>
-<li><a href="pyLoggingState.html">1.5 Logging State</a>
-<li><a href="constants.html">1.6 Constants</a>
+<dl class="function">
+<dt id="cx_Logging.Log">
+<!--#cx_Logging.Log#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">Log</tt><big>(</big><em>level</em>, <em>format</em>, <em>*args</em><big>)</big><a class="headerlink" href="#cx_Logging.Log" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the specified level. The format and arguments are the
+standard Python format.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.Trace">
+<!--#cx_Logging.Trace#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">Trace</tt><big>(</big><em>format</em>, <em>*args</em><big>)</big><a class="headerlink" href="#cx_Logging.Trace" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message regardless of the current level. The format and arguments are
+the standard Python format.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.Warning">
+<!--#cx_Logging.Warning#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">Warning</tt><big>(</big><em>level</em>, <em>format</em>, <em>*args</em><big>)</big><a class="headerlink" href="#cx_Logging.Warning" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the WARNING level. The format and arguments are the
+standard Python format.</dd></dl>
+
+</div>
+<div class="section">
+<h2 id="logging-exceptions">Logging Exceptions<a class="headerlink" href="#logging-exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cx_Logging.LogException">
+<!--#cx_Logging.LogException#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">LogException</tt><big>(</big><span class="optional">[</span><em>value</em>, <em>configuredExcBaseClass</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.LogException" title="Permalink to this definition">¶</a></dt>
+<dd>Log the exception just raised. The value is either a string (in which case
+the exception will be retrieved from the thread state) or the value is a
+configured exception (in which case it will be used directly). Not
+specifying either will use the information specified in SetExceptionInfo()
+instead and if that is not specified default values will be used.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.SetExceptionInfo">
+<!--#cx_Logging.SetExceptionInfo#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">SetExceptionInfo</tt><big>(</big><em>baseClass</em><span class="optional">[</span>, <em>builder</em>, <em>message</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.SetExceptionInfo" title="Permalink to this definition">¶</a></dt>
+<dd>Define the behavior that specifies how exceptions are logged. The first
+parameter specifies the base class of exceptions that are logged in a
+special way and once specified does not need to be specified in the
+method LogException(). The second parameter specifies a method to call to
+build an instance of the base class if the exception is not already an
+instance of that class. The last parameter specifies the message that
+is logged immediately prior to logging the exception.</dd></dl>
+
+</div>
+<div class="section">
+<h2 id="logging-state">Logging State<a class="headerlink" href="#logging-state" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="cx_Logging.GetLoggingFile">
+<!--#cx_Logging.GetLoggingFile#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">GetLoggingFile</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.GetLoggingFile" title="Permalink to this definition">¶</a></dt>
+<dd>Return the file object to which logging is currently taking place.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.GetLoggingFileName">
+<!--#cx_Logging.GetLoggingFileName#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">GetLoggingFileName</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.GetLoggingFileName" title="Permalink to this definition">¶</a></dt>
+<dd>Return the name of the file to which logging is currently taking place.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.GetLoggingLevel">
+<!--#cx_Logging.GetLoggingLevel#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">GetLoggingLevel</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.GetLoggingLevel" title="Permalink to this definition">¶</a></dt>
+<dd>Return the current logging level.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.GetLoggingState">
+<!--#cx_Logging.GetLoggingState#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">GetLoggingState</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.GetLoggingState" title="Permalink to this definition">¶</a></dt>
+<dd>Return the current logging state.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.SetLoggingLevel">
+<!--#cx_Logging.SetLoggingLevel#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">SetLoggingLevel</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.SetLoggingLevel" title="Permalink to this definition">¶</a></dt>
+<dd>Set the current logging level.</dd></dl>
+
+<dl class="function">
+<dt id="cx_Logging.SetLoggingState">
+<!--#cx_Logging.SetLoggingState#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">SetLoggingState</tt><big>(</big><big>)</big><a class="headerlink" href="#cx_Logging.SetLoggingState" title="Permalink to this definition">¶</a></dt>
+<dd>Set the current logging state.</dd></dl>
+
+</div>
+<div class="section">
+<h2 id="constants">Constants<a class="headerlink" href="#constants" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="cx_Logging.buildtime">
+<!--#cx_Logging.buildtime#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">buildtime</tt><a class="headerlink" href="#cx_Logging.buildtime" title="Permalink to this definition">¶</a></dt>
+<dd>The date and time when the module was built.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.CRITICAL">
+<!--#cx_Logging.CRITICAL#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">CRITICAL</tt><a class="headerlink" href="#cx_Logging.CRITICAL" title="Permalink to this definition">¶</a></dt>
+<dd>The level at which critical errors are logged.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.DEBUG">
+<!--#cx_Logging.DEBUG#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">DEBUG</tt><a class="headerlink" href="#cx_Logging.DEBUG" title="Permalink to this definition">¶</a></dt>
+<dd>The level at which debugging messages are logged.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.ENV_NAME_FILE_NAME">
+<!--#cx_Logging.ENV_NAME_FILE_NAME#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">ENV_NAME_FILE_NAME</tt><a class="headerlink" href="#cx_Logging.ENV_NAME_FILE_NAME" title="Permalink to this definition">¶</a></dt>
+<dd>The environment variable name used for defining the file to which messages
+are to be logged.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.ENV_NAME_LEVEL">
+<!--#cx_Logging.ENV_NAME_LEVEL#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">ENV_NAME_LEVEL</tt><a class="headerlink" href="#cx_Logging.ENV_NAME_LEVEL" title="Permalink to this definition">¶</a></dt>
+<dd>The environment variable name used for defining the level at which messages
+are to be logged.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.ENV_NAME_MAX_FILES">
+<!--#cx_Logging.ENV_NAME_MAX_FILES#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">ENV_NAME_MAX_FILES</tt><a class="headerlink" href="#cx_Logging.ENV_NAME_MAX_FILES" title="Permalink to this definition">¶</a></dt>
+<dd>The environment variable name used for defining the maximum number of files
+to use in the rotating logging scheme.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.ENV_NAME_MAX_FILE_SIZE">
+<!--#cx_Logging.ENV_NAME_MAX_FILE_SIZE#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">ENV_NAME_MAX_FILE_SIZE</tt><a class="headerlink" href="#cx_Logging.ENV_NAME_MAX_FILE_SIZE" title="Permalink to this definition">¶</a></dt>
+<dd>The environment variable name used for defining the maximum size of files
+before the files are rotated.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.ENV_NAME_PREFIX">
+<!--#cx_Logging.ENV_NAME_PREFIX#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">ENV_NAME_PREFIX</tt><a class="headerlink" href="#cx_Logging.ENV_NAME_PREFIX" title="Permalink to this definition">¶</a></dt>
+<dd>The environment variable name used for defining the prefix to use for all
+messages.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.ERROR">
+<!--#cx_Logging.ERROR#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">ERROR</tt><a class="headerlink" href="#cx_Logging.ERROR" title="Permalink to this definition">¶</a></dt>
+<dd>The level at which errors are logged.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.INFO">
+<!--#cx_Logging.INFO#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">INFO</tt><a class="headerlink" href="#cx_Logging.INFO" title="Permalink to this definition">¶</a></dt>
+<dd>The level at which information messages are logged.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.NONE">
+<!--#cx_Logging.NONE#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">NONE</tt><a class="headerlink" href="#cx_Logging.NONE" title="Permalink to this definition">¶</a></dt>
+<dd>The level at which no messages are logged.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.version">
+<!--#cx_Logging.version#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">version</tt><a class="headerlink" href="#cx_Logging.version" title="Permalink to this definition">¶</a></dt>
+<dd>The version of the module.</dd></dl>
+
+<dl class="data">
+<dt id="cx_Logging.WARNING">
+<!--#cx_Logging.WARNING#--><tt class="descclassname">cx_Logging.</tt><tt class="descname">WARNING</tt><a class="headerlink" href="#cx_Logging.WARNING" title="Permalink to this definition">¶</a></dt>
+<dd>The level at which warning messages are logged.</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sidebar">
+        <div class="sidebarwrapper">
+            <h3>Table Of Contents</h3>
+            <ul>
+<li><a class="reference" href="">Module Interface</a><ul>
+<li><a class="reference" href="#starting-logging">Starting Logging</a></li>
+<li><a class="reference" href="#stopping-logging">Stopping Logging</a></li>
+<li><a class="reference" href="#logging-messages">Logging Messages</a></li>
+<li><a class="reference" href="#logging-exceptions">Logging Exceptions</a></li>
+<li><a class="reference" href="#logging-state">Logging State</a></li>
+<li><a class="reference" href="#constants">Constants</a></li>
 </ul>
-<!--End of Table of Child-Links-->
-</div>
+</li>
+</ul>
 
-<div class="navigation">
-<div class='online-navigation'>
-<p></p><hr />
-<table align="center" width="100%" cellpadding="0" cellspacing="2">
-<tr>
-<td class='online-navigation'><a rel="prev" title="Contents"
-  href="contents.html"><img src='previous.png'
-  border='0' height='32'  alt='Previous Page' width='32' /></a></td>
-<td class='online-navigation'><a rel="parent" title="cx_Logging"
-  href="cx_Logging.html"><img src='up.png'
-  border='0' height='32'  alt='Up one Level' width='32' /></a></td>
-<td class='online-navigation'><a rel="next" title="1.1 starting Logging"
-  href="pyStartLogging.html"><img src='next.png'
-  border='0' height='32'  alt='Next Page' width='32' /></a></td>
-<td align="center" width="100%">cx_Logging</td>
-<td class='online-navigation'><a rel="contents" title="Table of Contents"
-  href="contents.html"><img src='contents.png'
-  border='0' height='32'  alt='Contents' width='32' /></a></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-</tr></table>
-<div class='online-navigation'>
-<b class="navlabel">Previous:</b>
-<a class="sectref" rel="prev" href="contents.html">Contents</a>
-<b class="navlabel">Up:</b>
-<a class="sectref" rel="parent" href="cx_Logging.html">cx_Logging</a>
-<b class="navlabel">Next:</b>
-<a class="sectref" rel="next" href="pyStartLogging.html">1.1 Starting Logging</a>
-</div>
-</div>
-<hr />
-<span class="release-info">Release 1.4, documentation updated on October 1, 2007.</span>
-</div>
-<!--End of Navigation Panel-->
-
-</body>
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="index.html" title="previous chapter">cx_Logging</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="cinterface.html" title="next chapter">C Interface</a></p>
+            <h3>Quick search</h3>
+            <form class="search" action="search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px"><a href="genindex.html" title="General Index" accesskey="I">index</a></li>
+        <li class="right"><a href="modindex.html" title="Global Module Index" accesskey="M">modules</a> |</li>
+          <li class="right"><a href="cinterface.html" title="C Interface" accesskey="N">next</a> |</li>
+          <li class="right"><a href="index.html" title="cx_Logging" accesskey="P">previous</a> |</li>
+        <li><a href="index.html">cx_Logging v1.4 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2008, Anthony Tuininga.
+      Last updated on Jul 26, 2008.
+    </div>
+  </body>
 </html>

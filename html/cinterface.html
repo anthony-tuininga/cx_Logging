@@ -1,115 +1,261 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<html>
-<head>
-<link rel="STYLESHEET" href="cx_Logging.css" type='text/css' />
-<link rel="first" href="cx_Logging.html" title='cx_Logging' />
-<link rel='contents' href='contents.html' title="Contents" />
-<link rel='last' href='about.html' title='About this document...' />
-<link rel='help' href='about.html' title='About this document...' />
-<link rel="next" href="license.html" />
-<link rel="prev" href="module.html" />
-<link rel="parent" href="cx_Logging.html" />
-<link rel="next" href="cStartLogging.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name='aesop' content='information' />
-<title>2. C Interface</title>
-</head>
-<body>
-<div class="navigation">
-<div id='top-navigation-panel' xml:id='top-navigation-panel'>
-<table align="center" width="100%" cellpadding="0" cellspacing="2">
-<tr>
-<td class='online-navigation'><a rel="prev" title="1.6 Constants"
-  href="constants.html"><img src='previous.png'
-  border='0' height='32'  alt='Previous Page' width='32' /></a></td>
-<td class='online-navigation'><a rel="parent" title="cx_Logging"
-  href="cx_Logging.html"><img src='up.png'
-  border='0' height='32'  alt='Up one Level' width='32' /></a></td>
-<td class='online-navigation'><a rel="next" title="2.1 starting Logging"
-  href="cStartLogging.html"><img src='next.png'
-  border='0' height='32'  alt='Next Page' width='32' /></a></td>
-<td align="center" width="100%">cx_Logging</td>
-<td class='online-navigation'><a rel="contents" title="Table of Contents"
-  href="contents.html"><img src='contents.png'
-  border='0' height='32'  alt='Contents' width='32' /></a></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-</tr></table>
-<div class='online-navigation'>
-<b class="navlabel">Previous:</b>
-<a class="sectref" rel="prev" href="constants.html">1.6 Constants</a>
-<b class="navlabel">Up:</b>
-<a class="sectref" rel="parent" href="cx_Logging.html">cx_Logging</a>
-<b class="navlabel">Next:</b>
-<a class="sectref" rel="next" href="cStartLogging.html">2.1 Starting Logging</a>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>C Interface &mdash; cx_Logging v1.4 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:   '',
+        VERSION:    '1.4'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/interface.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="contents" title="Global table of contents" href="contents.html" />
+    <link rel="index" title="Global index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="cx_Logging v1.4 documentation" href="index.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Module Interface" href="module.html" />
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px"><a href="genindex.html" title="General Index" accesskey="I">index</a></li>
+        <li class="right"><a href="modindex.html" title="Global Module Index" accesskey="M">modules</a> |</li>
+          <li class="right"><a href="license.html" title="License" accesskey="N">next</a> |</li>
+          <li class="right"><a href="module.html" title="Module Interface" accesskey="P">previous</a> |</li>
+        <li><a href="index.html">cx_Logging v1.4 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  
+  <div class="section">
+<h1 id="c-interface"><span id="cinterface"></span>C Interface<a class="headerlink" href="#c-interface" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All methods return -1 for an error or 0 for success unless otherwise stated.</p>
 </div>
-<hr /></div>
+<div class="section">
+<h2 id="starting-logging">Starting Logging<a class="headerlink" href="#starting-logging" title="Permalink to this headline">¶</a></h2>
+<dl class="cfunction">
+<dt id="StartLogging">
+<!--#StartLogging#-->int <tt class="descname">StartLogging</tt><big>(</big>const char*<em> fileName</em>, unsigned long<em> level</em>, unsigned long<em> maxfiles</em>, unsigned long<em> maxfilesize</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLogging" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to the specified file at the specified level.</dd></dl>
+
+<dl class="cfunction">
+<dt id="StartLoggingFromEnvironment">
+<!--#StartLoggingFromEnvironment#-->int <tt class="descname">StartLoggingFromEnvironment</tt><big>(</big><big>)</big><a class="headerlink" href="#StartLoggingFromEnvironment" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging by reading the environment variables &#8220;CX_LOGGING_FILE_NAME&#8221;,
+&#8220;CX_LOGGING_LEVEL&#8221;, &#8220;CX_LOGGING_MAX_FILES&#8221;, &#8220;CX_LOGGING_MAX_FILE_SIZE&#8221;,
+&#8220;CX_LOGGING_PREFIX&#8221; to determine the parameters to the StartLogging method.</dd></dl>
+
+<dl class="cfunction">
+<dt id="StartLoggingForPythonThread">
+<!--#StartLoggingForPythonThread#-->int <tt class="descname">StartLoggingForPythonThread</tt><big>(</big>const char*<em> filename</em>, unsigned long<em> level</em>, unsigned long<em> maxfiles</em>, unsigned long<em> maxfilesize</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLoggingForPythonThread" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to the specified file at the specified level but only for the
+currently active Python thread.</dd></dl>
+
+<dl class="cfunction">
+<dt id="StartLoggingStderr">
+<!--#StartLoggingStderr#-->int <tt class="descname">StartLoggingStderr</tt><big>(</big>unsigned long<em> level</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLoggingStderr" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to stderr at the specified level.</dd></dl>
+
+<dl class="cfunction">
+<dt id="StartLoggingStdout">
+<!--#StartLoggingStdout#-->int <tt class="descname">StartLoggingStdout</tt><big>(</big>unsigned long<em> level</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLoggingStdout" title="Permalink to this definition">¶</a></dt>
+<dd>Start logging to stdout at the given level.</dd></dl>
+
 </div>
-<!--End of Navigation Panel-->
+<div class="section">
+<h2 id="stopping-logging">Stopping Logging<a class="headerlink" href="#stopping-logging" title="Permalink to this headline">¶</a></h2>
+<dl class="cfunction">
+<dt id="StopLogging">
+<!--#StopLogging#-->int <tt class="descname">StopLogging</tt><big>(</big><big>)</big><a class="headerlink" href="#StopLogging" title="Permalink to this definition">¶</a></dt>
+<dd>Stop logging.</dd></dl>
 
-<h1><a name="SECTION004000000000000000000"></a><a name="cinterface"></a>
-<br>
-2. C Interface
-</h1>
+<dl class="cfunction">
+<dt id="StopLoggingForPythonThread">
+<!--#StopLoggingForPythonThread#-->int <tt class="descname">StopLoggingForPythonThread</tt><big>(</big><big>)</big><a class="headerlink" href="#StopLoggingForPythonThread" title="Permalink to this definition">¶</a></dt>
+<dd>Stop logging in the current Python thread.</dd></dl>
 
-<p>
-All methods return -1 for an error or 0 for success unless otherwise stated.
+</div>
+<div class="section">
+<h2 id="logging-messages">Logging Messages<a class="headerlink" href="#logging-messages" title="Permalink to this headline">¶</a></h2>
+<dl class="cfunction">
+<dt id="LogCritical">
+<!--#LogCritical#-->int <tt class="descname">LogCritical</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogCritical" title="Permalink to this definition">¶</a></dt>
+<dd>Log message at CRITICAL level.</dd></dl>
 
-<p>
+<dl class="cfunction">
+<dt id="LogDebug">
+<!--#LogDebug#-->int <tt class="descname">LogDebug</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogDebug" title="Permalink to this definition">¶</a></dt>
+<dd>Log message at DEBUG level.</dd></dl>
 
-<p><br /></p><hr class='online-navigation' />
-<div class='online-navigation'>
-<!--Table of Child-Links-->
-<a name="CHILD_LINKS"><strong>Subsections</strong></a>
+<dl class="cfunction">
+<dt id="LogError">
+<!--#LogError#-->int <tt class="descname">LogError</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogError" title="Permalink to this definition">¶</a></dt>
+<dd>Log message at ERROR level.</dd></dl>
 
-<ul class="ChildLinks">
-<li><a href="cStartLogging.html">2.1 Starting Logging</a>
-<li><a href="cStopLogging.html">2.2 Stopping Logging</a>
-<li><a href="cLoggingMessages.html">2.3 Logging Messages</a>
-<li><a href="cLoggingExceptions.html">2.4 Logging Exceptions</a>
-<li><a href="cLoggingState.html">2.5 Logging State</a>
+<dl class="cfunction">
+<dt id="LogInfo">
+<!--#LogInfo#-->int <tt class="descname">LogInfo</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogInfo" title="Permalink to this definition">¶</a></dt>
+<dd>Log message at INFO level.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogMessage">
+<!--#LogMessage#-->int <tt class="descname">LogMessage</tt><big>(</big>unsigned long<em> level</em>, const char*<em> message</em><big>)</big><a class="headerlink" href="#LogMessage" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the specified level.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogMessageV">
+<!--#LogMessageV#-->int <tt class="descname">LogMessageV</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, ...<big>)</big><a class="headerlink" href="#LogMessageV" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the specified level using the standard C printf format with
+arguments.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogMessageVaList">
+<!--#LogMessageVaList#-->int <tt class="descname">LogMessageVaList</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, va_list<em> args</em><big>)</big><a class="headerlink" href="#LogMessageVaList" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the specified level using the standard C printf format with
+arguments already encoded in a va_list.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogMessageForPythonV">
+<!--#LogMessageForPythonV#-->int <tt class="descname">LogMessageForPythonV</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, ...<big>)</big><a class="headerlink" href="#LogMessageForPythonV" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the specified level in the logging file defined for the
+current Python thread using the standard C printf format with arguments.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogMessageForPythonVaList">
+<!--#LogMessageForPythonVaList#-->int <tt class="descname">LogMessageForPythonVaList</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, va_list<em> args</em><big>)</big><a class="headerlink" href="#LogMessageForPythonVaList" title="Permalink to this definition">¶</a></dt>
+<dd>Log a message at the specified level in the logging file defined for the
+current Python thread using the standard C printf format with arguments
+already encoded in a va_list.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogTrace">
+<!--#LogTrace#-->int <tt class="descname">LogTrace</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogTrace" title="Permalink to this definition">¶</a></dt>
+<dd>Log message regardless of what level is currently being logged. This is
+primarily of use for logging tracing messages.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogWarning">
+<!--#LogWarning#-->int <tt class="descname">LogWarning</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogWarning" title="Permalink to this definition">¶</a></dt>
+<dd>Log message at WARNING level.</dd></dl>
+
+</div>
+<div class="section">
+<h2 id="logging-exceptions">Logging Exceptions<a class="headerlink" href="#logging-exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="cfunction">
+<dt id="LogConfiguredException">
+<!--#LogConfiguredException#-->int <tt class="descname">LogConfiguredException</tt><big>(</big>PyObject*<em> errorobj</em><big>)</big><a class="headerlink" href="#LogConfiguredException" title="Permalink to this definition">¶</a></dt>
+<dd>Log the contents of the error object. This method expects attributes named
+&#8220;message&#8221;, &#8220;templateId&#8221;, &#8220;arguments&#8221;, &#8220;traaceback&#8221;, &#8220;details&#8221; and
+&#8220;logLevel&#8221;.  If the &#8220;logLevel&#8221; attribute is missing logging is done at the
+ERROR level.  If any of the other attributes are missing or of the wrong
+type that fact is logged and processing continues. This function returns -1
+at all times as a convenience to the caller.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogPythonException">
+<!--#LogPythonException#-->int <tt class="descname">LogPythonException</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogPythonException" title="Permalink to this definition">¶</a></dt>
+<dd>Log the current Python exception with the given message as the first message
+that is written to the log. The exception is logged with traceback if the
+traceback module is available. This function returns -1 at all times as a
+convenience to the caller.</dd></dl>
+
+<dl class="cfunction">
+<dt id="LogPythonExceptionWithTraceback">
+<!--#LogPythonExceptionWithTraceback#-->int <tt class="descname">LogPythonExceptionWithTraceback</tt><big>(</big>const char*<em> message</em>, PyObject*<em> type</em>, PyObject*<em> value</em>, PyObject*<em> traceback</em><big>)</big><a class="headerlink" href="#LogPythonExceptionWithTraceback" title="Permalink to this definition">¶</a></dt>
+<dd>Log the specified Python exception with the given message as the first
+message that is written to the log. The exception is logged with traceback
+if the traceback module is available. This function returns -1 at all times
+as a convenience to the caller.</dd></dl>
+
+</div>
+<div class="section">
+<h2 id="logging-state">Logging State<a class="headerlink" href="#logging-state" title="Permalink to this headline">¶</a></h2>
+<dl class="cfunction">
+<dt id="GetLoggingLevel">
+<!--#GetLoggingLevel#-->unsigned long <tt class="descname">GetLoggingLevel</tt><big>(</big><big>)</big><a class="headerlink" href="#GetLoggingLevel" title="Permalink to this definition">¶</a></dt>
+<dd>Return the current logging level.</dd></dl>
+
+<dl class="cfunction">
+<dt id="GetLoggingState">
+<!--#GetLoggingState#-->udt_LoggingState* <tt class="descname">GetLoggingState</tt><big>(</big><big>)</big><a class="headerlink" href="#GetLoggingState" title="Permalink to this definition">¶</a></dt>
+<dd>Return the logging state for the current Python thread.</dd></dl>
+
+<dl class="cfunction">
+<dt id="IsLoggingStarted">
+<!--#IsLoggingStarted#-->int <tt class="descname">IsLoggingStarted</tt><big>(</big><big>)</big><a class="headerlink" href="#IsLoggingStarted" title="Permalink to this definition">¶</a></dt>
+<dd>Return 1 if logging has been started and 0 otherwise.</dd></dl>
+
+<dl class="cfunction">
+<dt id="SetLoggingLevel">
+<!--#SetLoggingLevel#-->int <tt class="descname">SetLoggingLevel</tt><big>(</big>unsigned long<em> newlevel</em><big>)</big><a class="headerlink" href="#SetLoggingLevel" title="Permalink to this definition">¶</a></dt>
+<dd>Set the current logging level.</dd></dl>
+
+<dl class="cfunction">
+<dt id="SetLoggingState">
+<!--#SetLoggingState#-->int <tt class="descname">SetLoggingState</tt><big>(</big>udt_LoggingState*<em> state</em><big>)</big><a class="headerlink" href="#SetLoggingState" title="Permalink to this definition">¶</a></dt>
+<dd>Set the logging state for the current Python thread.</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sidebar">
+        <div class="sidebarwrapper">
+            <h3>Table Of Contents</h3>
+            <ul>
+<li><a class="reference" href="">C Interface</a><ul>
+<li><a class="reference" href="#starting-logging">Starting Logging</a></li>
+<li><a class="reference" href="#stopping-logging">Stopping Logging</a></li>
+<li><a class="reference" href="#logging-messages">Logging Messages</a></li>
+<li><a class="reference" href="#logging-exceptions">Logging Exceptions</a></li>
+<li><a class="reference" href="#logging-state">Logging State</a></li>
 </ul>
-<!--End of Table of Child-Links-->
-</div>
+</li>
+</ul>
 
-<div class="navigation">
-<div class='online-navigation'>
-<p></p><hr />
-<table align="center" width="100%" cellpadding="0" cellspacing="2">
-<tr>
-<td class='online-navigation'><a rel="prev" title="1.6 Constants"
-  href="constants.html"><img src='previous.png'
-  border='0' height='32'  alt='Previous Page' width='32' /></a></td>
-<td class='online-navigation'><a rel="parent" title="cx_Logging"
-  href="cx_Logging.html"><img src='up.png'
-  border='0' height='32'  alt='Up one Level' width='32' /></a></td>
-<td class='online-navigation'><a rel="next" title="2.1 starting Logging"
-  href="cStartLogging.html"><img src='next.png'
-  border='0' height='32'  alt='Next Page' width='32' /></a></td>
-<td align="center" width="100%">cx_Logging</td>
-<td class='online-navigation'><a rel="contents" title="Table of Contents"
-  href="contents.html"><img src='contents.png'
-  border='0' height='32'  alt='Contents' width='32' /></a></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-<td class='online-navigation'><img src='blank.png'
-  border='0' height='32'  alt='' width='32' /></td>
-</tr></table>
-<div class='online-navigation'>
-<b class="navlabel">Previous:</b>
-<a class="sectref" rel="prev" href="constants.html">1.6 Constants</a>
-<b class="navlabel">Up:</b>
-<a class="sectref" rel="parent" href="cx_Logging.html">cx_Logging</a>
-<b class="navlabel">Next:</b>
-<a class="sectref" rel="next" href="cStartLogging.html">2.1 Starting Logging</a>
-</div>
-</div>
-<hr />
-<span class="release-info">Release 1.4, documentation updated on October 1, 2007.</span>
-</div>
-<!--End of Navigation Panel-->
-
-</body>
+            <h4>Previous topic</h4>
+            <p class="topless"><a href="module.html" title="previous chapter">Module Interface</a></p>
+            <h4>Next topic</h4>
+            <p class="topless"><a href="license.html" title="next chapter">License</a></p>
+            <h3>Quick search</h3>
+            <form class="search" action="search.html" method="get">
+              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
+              <input type="hidden" name="check_keywords" value="yes" />
+              <input type="hidden" name="area" value="default" />
+            </form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px"><a href="genindex.html" title="General Index" accesskey="I">index</a></li>
+        <li class="right"><a href="modindex.html" title="Global Module Index" accesskey="M">modules</a> |</li>
+          <li class="right"><a href="license.html" title="License" accesskey="N">next</a> |</li>
+          <li class="right"><a href="module.html" title="Module Interface" accesskey="P">previous</a> |</li>
+        <li><a href="index.html">cx_Logging v1.4 documentation</a> &raquo;</li>
+      </ul>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2008, Anthony Tuininga.
+      Last updated on Jul 26, 2008.
+    </div>
+  </body>
 </html>
