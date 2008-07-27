@@ -95,7 +95,7 @@ CX_LOGGING_API int LogPythonObject(unsigned long, const char*, const char*,
 CX_LOGGING_API int LogPythonException(const char*);
 CX_LOGGING_API int LogPythonExceptionWithTraceback(const char*, PyObject*,
         PyObject*, PyObject*);
-CX_LOGGING_API int LogConfiguredException(PyObject*);
+CX_LOGGING_API int LogConfiguredException(PyObject*, const char*);
 CX_LOGGING_API udt_LoggingState* GetLoggingState(void);
 CX_LOGGING_API int SetLoggingState(udt_LoggingState*);
 CX_LOGGING_API int IsLoggingStarted(void);
