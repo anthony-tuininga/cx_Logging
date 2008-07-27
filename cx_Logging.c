@@ -11,7 +11,10 @@
 #include <fcntl.h>
 #endif
 
-#define THREAD_STATE_KEY        "cx_Logging"
+#define KEY_LOGGING_STATE       "cx_Logging_LoggingState"
+#define KEY_EXC_BASE_CLASS      "cx_Logging_ExcBaseClass"
+#define KEY_EXC_MESSAGE         "cx_Logging_ExcMessage"
+#define KEY_EXC_BUILDER         "cx_Logging_ExcBuilder"
 #define ENV_NAME_FILE_NAME      "CX_LOGGING_FILE_NAME"
 #define ENV_NAME_LEVEL          "CX_LOGGING_LEVEL"
 #define ENV_NAME_MAX_FILES      "CX_LOGGING_MAX_FILES"
@@ -892,7 +895,7 @@ CX_LOGGING_API void StopLoggingForPythonThread(void)
     PyObject *dict;
 
     dict = GetThreadStateDictionary();
-    if (dict && PyDict_DelItemString(dict, THREAD_STATE_KEY) < 0) {
+    if (dict && PyDict_DelItemString(dict, KEY_LOGGING_STATE) < 0) {
         PyErr_Clear();
         LogMessage(LOG_LEVEL_WARNING,
                 "tried to stop logging without starting first");
@@ -1451,7 +1454,8 @@ static int LogListOfStringsFromErrorObj(
 //   Log a configured Python exception.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API int LogConfiguredException(
-    PyObject *errorObj)                 // object to log
+    PyObject *errorObj,                 // object to log
+    const char *message)                // message to prepend
 {
     unsigned long logLevel;
     PyObject *logLevelObj;
@@ -1471,7 +1475,7 @@ CX_LOGGING_API int LogConfiguredException(
     }
 
     // log the exception
-    LogMessageForPythonV(logLevel, "Configured Python exception encountered:");
+    LogMessageForPythonV(logLevel, message);
     LogMessageFromErrorObj(logLevel, errorObj);
     LogTemplateIdFromErrorObj(logLevel, errorObj);
     LogArgumentsFromErrorObj(logLevel, errorObj);
@@ -1493,7 +1497,7 @@ CX_LOGGING_API udt_LoggingState* GetLoggingState(void)
     dict = GetThreadStateDictionary();
     if (!dict)
         return NULL;
-    return (udt_LoggingState*) PyDict_GetItemString(dict, THREAD_STATE_KEY);
+    return (udt_LoggingState*) PyDict_GetItemString(dict, KEY_LOGGING_STATE);
 }
 
 
@@ -1509,9 +1513,12 @@ CX_LOGGING_API int SetLoggingState(
     PyObject *dict;
 
     dict = GetThreadStateDictionary();
-    if (!dict)
+    if (!dict) {
+        PyErr_SetString(PyExc_RuntimeError,
+                "unable to get thread state dictionary");
         return -1;
-    if (PyDict_SetItemString(dict, THREAD_STATE_KEY,
+    }
+    if (PyDict_SetItemString(dict, KEY_LOGGING_STATE,
             (PyObject*) loggingState) < 0)
         return LogPythonException("unable to set logging state for thread");
     return 0;
@@ -1917,10 +1924,42 @@ static PyObject* SetLoggingStateForPython(
     if (!PyArg_ParseTuple(args, "O!", &gPythonLoggingStateType,
             &loggingState))
         return NULL;
-    if (SetLoggingState(loggingState) < 0) {
-        PyErr_SetString(PyExc_RuntimeError, "unable to set logging state");
+    if (SetLoggingState(loggingState) < 0)
+        return NULL;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
+//-----------------------------------------------------------------------------
+// SetExceptionInfoForPython()
+//   Set base exception information for use when logging exceptions in
+// Python.
+//-----------------------------------------------------------------------------
+static PyObject* SetExceptionInfoForPython(
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
+{
+    PyObject *baseClass, *message, *builder, *dict;
+
+    message = builder = NULL;
+    if (!PyArg_ParseTuple(args, "O|OS", &baseClass, &builder, &message))
+        return NULL;
+
+    dict = GetThreadStateDictionary();
+    if (!dict) {
+        PyErr_SetString(PyExc_RuntimeError,
+                "unable to set thread state dictionary");
         return NULL;
     }
+    if (PyDict_SetItemString(dict, KEY_EXC_BASE_CLASS, baseClass) < 0)
+        return NULL;
+    if (message && PyDict_SetItemString(dict, KEY_EXC_MESSAGE, message) < 0)
+        return NULL;
+    if (builder && PyDict_SetItemString(dict, KEY_EXC_BUILDER, builder) < 0)
+        return NULL;
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1935,31 +1974,76 @@ static PyObject* LogExceptionForPython(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    PyObject *value, *configuredExcBaseClass = NULL;
-    PyThreadState *threadState = NULL;
-    int isConfigured = 1;
+    PyObject *value, *configuredExcBaseClass, *excBuilder, *dict, *messageObj;
+    int isConfigured = 1, isBuilt = 0;
+    PyThreadState *threadState;
     char *message = NULL;
 
-    if (!PyArg_ParseTuple(args, "O|O", &value, &configuredExcBaseClass))
+    // parse arguments
+    value = configuredExcBaseClass = NULL;
+    if (!PyArg_ParseTuple(args, "|OO", &value, &configuredExcBaseClass))
         return NULL;
 
-    if (PyString_Check(value)) {
+    // determine which base class to use for comparisons
+    threadState = PyThreadState_GET();
+    dict = GetThreadStateDictionary();
+    if (dict && !configuredExcBaseClass)
+        configuredExcBaseClass = PyDict_GetItemString(dict,
+                KEY_EXC_BASE_CLASS);
+
+    // now determine if base class is configured or not
+    if (!value || PyString_Check(value)) {
         isConfigured = 0;
-        message = PyString_AS_STRING(value);
-        threadState = PyThreadState_GET();
-        value = threadState->exc_value;
-        if (configuredExcBaseClass && value) {
-            isConfigured = PyObject_IsInstance(threadState->exc_value,
-                    configuredExcBaseClass);
-            if (isConfigured < 0)
-                return NULL;
+        if (value)
+            message = PyString_AS_STRING(value);
+        else {
+            value = threadState->exc_value;
+            if (configuredExcBaseClass && value) {
+                isConfigured = PyObject_IsInstance(value,
+                        configuredExcBaseClass);
+                if (isConfigured < 0)
+                    return NULL;
+            }
         }
     }
 
-    if (isConfigured)
-        LogConfiguredException(value);
-    else LogPythonExceptionWithTraceback(message, threadState->exc_type,
-            threadState->exc_value, threadState->exc_traceback);
+    // if class is not configured but we have a way of building one,
+    // build it now
+    if (!isConfigured && dict && threadState->exc_type &&
+            threadState->exc_value && threadState->exc_traceback) {
+        excBuilder = PyDict_GetItemString(dict, KEY_EXC_BUILDER);
+        if (excBuilder) {
+            value = PyObject_CallFunctionObjArgs(excBuilder,
+                    threadState->exc_type, threadState->exc_value,
+                    threadState->exc_traceback, NULL);
+            if (!value)
+                return NULL;
+            isConfigured = 1;
+            isBuilt = 1;
+        }
+    }
+
+    // define message to display if not already defined
+    if (!message) {
+        if (dict) {
+            messageObj = PyDict_GetItemString(dict, KEY_EXC_MESSAGE);
+            if (messageObj)
+                message = PyString_AS_STRING(messageObj);
+        }
+        if (!message)
+            message = "Python exception encountered:";
+    }
+
+    // display message
+    if (isConfigured) {
+        LogConfiguredException(value, message);
+    } else {
+        LogPythonExceptionWithTraceback(message, threadState->exc_type,
+                threadState->exc_value, threadState->exc_traceback);
+    }
+    if (isBuilt) {
+        Py_DECREF(value);
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -1995,6 +2079,8 @@ static PyMethodDef gLoggingModuleMethods[] = {
             METH_NOARGS },
     { "GetLoggingState", (PyCFunction) GetLoggingStateForPython, METH_NOARGS },
     { "SetLoggingState", (PyCFunction) SetLoggingStateForPython,
+            METH_VARARGS },
+    { "SetExceptionInfo", (PyCFunction) SetExceptionInfoForPython,
             METH_VARARGS },
     { "LogException", (PyCFunction) LogExceptionForPython, METH_VARARGS },
     { NULL }
