@@ -635,14 +635,13 @@ void PythonLoggingState_Free(
         LoggingState_Free(self->state);
         LogMessage(LOG_LEVEL_INFO, "stopping logging for Python thread");
     }
-    self->ob_type->tp_free((PyObject*) self);
+    Py_TYPE(self)->tp_free((PyObject*) self);
 }
 
 
 // define logging state Python type
 static PyTypeObject gPythonLoggingStateType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                                  // ob_size
+    PyVarObject_HEAD_INIT(NULL, 0)
     "cx_Logging.LoggingState",          // tp_name
     sizeof(udt_LoggingState),           // tp_basicsize
     0,                                  // tp_itemsize
