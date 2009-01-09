@@ -2040,10 +2040,10 @@ static PyObject* LogExceptionForPython(
         LogPythonExceptionWithTraceback(message, threadState->exc_type,
                 threadState->exc_value, threadState->exc_traceback);
     }
-    if (isBuilt) {
-        Py_DECREF(value);
-    }
 
+    // return value is the built exception if one is built; otherwise None
+    if (isBuilt)
+        return value;
     Py_INCREF(Py_None);
     return Py_None;
 }
