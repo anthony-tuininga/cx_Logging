@@ -52,6 +52,23 @@ typedef int Py_ssize_t;
 #endif
 
 
+// use the bytes methods in cx_Logging and define them as the equivalent string
+// type methods as is done in Python 2.6
+#ifndef PyBytes_Check
+    #define PyBytes_AS_STRING           PyString_AS_STRING
+    #define PyBytes_AsString            PyString_AsString
+    #define PyBytes_Check               PyString_Check
+    #define PyBytes_FromString          PyString_FromString
+#endif
+
+
+// define PyInt_* macros for Python 3.x
+#ifndef PyInt_Check
+    #define PyInt_AsLong                PyLong_AsLong
+    #define PyInt_FromLong              PyLong_FromLong
+#endif
+
+
 // define global logging state
 static LoggingState *gLoggingState;
 static LOCK_TYPE gLoggingStateLock;
@@ -1181,7 +1198,7 @@ CX_LOGGING_API int LogPythonObject(
         stringRep = PyObject_Str(object);
         if (stringRep) {
             result = LogMessageForPythonV(logLevel, "%s%s => %s", prefix, name,
-                    PyString_AS_STRING(stringRep));
+                    PyBytes_AS_STRING(stringRep));
             Py_DECREF(stringRep);
         } else {
             result = LogMessageForPythonV(logLevel,
@@ -1288,7 +1305,7 @@ CX_LOGGING_API int LogPythonExceptionWithTraceback(
     }
     for (i = 0; i < numElements; i++) {
         line = PyList_GET_ITEM(result, i);
-        string = PyString_AsString(line);
+        string = PyBytes_AsString(line);
         if (!string) {
             Py_DECREF(result);
             return LogPythonExceptionNoTraceback("cannot get string");
@@ -1333,7 +1350,7 @@ static int LogMessageFromErrorObj(
     message = PyObject_GetAttrString(errorObj, "message");
     if (!message)
         return LogPythonException("no message on error object");
-    buffer = PyString_AsString(message);
+    buffer = PyBytes_AsString(message);
     if (!buffer) {
         Py_DECREF(message);
         return LogPythonException("message attribute is not a string");
@@ -1400,7 +1417,7 @@ static int LogArgumentsFromErrorObj(
         item = PyList_GET_ITEM(items, i);
         key = PyTuple_GET_ITEM(item, 0);
         value = PyTuple_GET_ITEM(item, 1);
-        keyString = PyString_AsString(key);
+        keyString = PyBytes_AsString(key);
         if (!keyString) {
             Py_DECREF(items);
             return LogPythonException("key value is not a string");
@@ -1436,7 +1453,7 @@ static int LogListOfStringsFromErrorObj(
     }
     LogMessageForPythonV(level, "    %s:", header);
     for (i = 0; i < size; i++) {
-        buffer = PyString_AsString(PyList_GET_ITEM(list, i));
+        buffer = PyBytes_AsString(PyList_GET_ITEM(list, i));
         if (!buffer) {
             Py_DECREF(list);
             return LogPythonException("value in list is not a string");
@@ -1558,11 +1575,15 @@ static PyObject* LogMessageForPythonWithLevel(
                 PyTuple_GET_SIZE(args));
         if (!tempArgs)
             return NULL;
+#if PY_MAJOR_VERSION >= 3
+        temp = PyUnicode_Format(format, tempArgs);
+#else
         temp = PyString_Format(format, tempArgs);
+#endif
         Py_DECREF(tempArgs);
         if (!temp)
             return NULL;
-        if (WriteMessageForPython(level, PyString_AS_STRING(temp)) < 0) {
+        if (WriteMessageForPython(level, PyBytes_AS_STRING(temp)) < 0) {
             Py_DECREF(temp);
             return PyErr_SetFromErrno(PyExc_OSError);
         }
@@ -1850,12 +1871,22 @@ static PyObject* GetLoggingFileForPython(
 
     loggingState = GetLoggingState();
     if (loggingState)
+#if PY_MAJOR_VERSION >= 3
+        return PyFile_FromFd(fileno(loggingState->state->fp),
+                loggingState->state->fileName, "w", -1, NULL, NULL, NULL, 0);
+#else
         return PyFile_FromFile(loggingState->state->fp,
                 loggingState->state->fileName, "w", NULL);
+#endif
     ACQUIRE_LOCK(gLoggingStateLock);
     if (gLoggingState)
+#if PY_MAJOR_VERSION >= 3
+        fileObj = PyFile_FromFd(fileno(gLoggingState->fp),
+                gLoggingState->fileName, "w", -1, NULL, NULL, NULL, 0);
+#else
         fileObj = PyFile_FromFile(gLoggingState->fp,
                 gLoggingState->fileName, "w", NULL);
+#endif
     else {
         Py_INCREF(Py_None);
         fileObj = Py_None;
@@ -1878,10 +1909,10 @@ static PyObject* GetLoggingFileNameForPython(
 
     loggingState = GetLoggingState();
     if (loggingState)
-        return PyString_FromString(loggingState->state->fileName);
+        return PyBytes_FromString(loggingState->state->fileName);
     ACQUIRE_LOCK(gLoggingStateLock);
     if (gLoggingState)
-        fileNameObj = PyString_FromString(gLoggingState->fileName);
+        fileNameObj = PyBytes_FromString(gLoggingState->fileName);
     else {
         Py_INCREF(Py_None);
         fileNameObj = Py_None;
@@ -1991,10 +2022,10 @@ static PyObject* LogExceptionForPython(
                 KEY_EXC_BASE_CLASS);
 
     // now determine if base class is configured or not
-    if (!value || PyString_Check(value)) {
+    if (!value || PyBytes_Check(value)) {
         isConfigured = 0;
         if (value)
-            message = PyString_AS_STRING(value);
+            message = PyBytes_AS_STRING(value);
         else {
             value = threadState->exc_value;
             if (configuredExcBaseClass && value) {
@@ -2027,7 +2058,7 @@ static PyObject* LogExceptionForPython(
         if (dict) {
             messageObj = PyDict_GetItemString(dict, KEY_EXC_MESSAGE);
             if (messageObj)
-                message = PyString_AS_STRING(messageObj);
+                message = PyBytes_AS_STRING(messageObj);
         }
         if (!message)
             message = "Python exception encountered:";
@@ -2090,60 +2121,99 @@ static PyMethodDef gLoggingModuleMethods[] = {
 };
 
 
+#if PY_MAJOR_VERSION >= 3
 //-----------------------------------------------------------------------------
-// initcx_Logging()
+//   Declaration of module definition for Python 3.x.
+//-----------------------------------------------------------------------------
+static struct PyModuleDef g_ModuleDef = {
+    PyModuleDef_HEAD_INIT,
+    "cx_Logging",
+    NULL,
+    -1,
+    gLoggingModuleMethods,              // methods
+    NULL,                               // m_reload
+    NULL,                               // traverse
+    NULL,                               // clear
+    NULL                                // free
+};
+#endif
+
+
+//-----------------------------------------------------------------------------
+// Module_Initialize()
 //   Initialize the logging module.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API void initcx_Logging(void)
+static PyObject *Module_Initialize(void)
 {
     PyObject *module;
 
     // initialize module and types
     PyEval_InitThreads();
+#if PY_MAJOR_VERSION >= 3
+    module = PyModule_Create(&g_ModuleDef);
+#else
     module = Py_InitModule("cx_Logging", gLoggingModuleMethods);
+#endif
     if (!module)
-        return;
+        return NULL;
     if (PyType_Ready(&gPythonLoggingStateType) < 0)
-        return;
+        return NULL;
 
     // add version and build time for easier support
     if (PyModule_AddStringConstant(module, "version",
             BUILD_VERSION_STRING) < 0)
-        return;
+        return NULL;
     if (PyModule_AddStringConstant(module, "buildtime",
             __DATE__ " " __TIME__) < 0)
-        return;
+        return NULL;
 
     // set constants
     if (PyModule_AddIntConstant(module, "CRITICAL", LOG_LEVEL_CRITICAL) < 0)
-        return;
+        return NULL;
     if (PyModule_AddIntConstant(module, "ERROR", LOG_LEVEL_ERROR) < 0)
-        return;
+        return NULL;
     if (PyModule_AddIntConstant(module, "WARNING", LOG_LEVEL_WARNING) < 0)
-        return;
+        return NULL;
     if (PyModule_AddIntConstant(module, "INFO", LOG_LEVEL_INFO) < 0)
-        return;
+        return NULL;
     if (PyModule_AddIntConstant(module, "DEBUG", LOG_LEVEL_DEBUG) < 0)
-        return;
+        return NULL;
     if (PyModule_AddIntConstant(module, "NONE", LOG_LEVEL_NONE) < 0)
-        return;
+        return NULL;
     if (PyModule_AddStringConstant(module, "ENV_NAME_FILE_NAME",
             ENV_NAME_FILE_NAME) < 0)
-        return;
+        return NULL;
     if (PyModule_AddStringConstant(module, "ENV_NAME_LEVEL",
             ENV_NAME_LEVEL) < 0)
-        return;
+        return NULL;
     if (PyModule_AddStringConstant(module, "ENV_NAME_MAX_FILES",
             ENV_NAME_MAX_FILES) < 0)
-        return;
+        return NULL;
     if (PyModule_AddStringConstant(module, "ENV_NAME_MAX_FILE_SIZE",
             ENV_NAME_MAX_FILE_SIZE) < 0)
-        return;
+        return NULL;
     if (PyModule_AddStringConstant(module, "ENV_NAME_PREFIX",
             ENV_NAME_PREFIX) < 0)
-        return;
+        return NULL;
+
+    return module;
 }
 
+
+//-----------------------------------------------------------------------------
+// Start routine for the module.
+//-----------------------------------------------------------------------------
+#if PY_MAJOR_VERSION >= 3
+PyMODINIT_FUNC PyInit_cx_Logging(void)
+{
+    return Module_Initialize();
+}
+#else
+void initcx_Logging(void)
+{
+    Module_Initialize();
+}
+#endif
 
 #ifdef WIN32
 //-----------------------------------------------------------------------------
