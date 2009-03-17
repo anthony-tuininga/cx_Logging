@@ -58,7 +58,9 @@ typedef int Py_ssize_t;
     #define PyBytes_AS_STRING           PyString_AS_STRING
     #define PyBytes_AsString            PyString_AsString
     #define PyBytes_Check               PyString_Check
+    #define PyBytes_Format              PyString_Format
     #define PyBytes_FromString          PyString_FromString
+    #define PyBytes_Type                PyString_Type
 #endif
 
 
@@ -66,6 +68,17 @@ typedef int Py_ssize_t;
 #ifndef PyInt_Check
     #define PyInt_AsLong                PyLong_AsLong
     #define PyInt_FromLong              PyLong_FromLong
+#endif
+
+
+// define macros for managing the differences between handling strings
+// in Python 2.x and Python 3.x
+#if PY_MAJOR_VERSION >= 3
+    #define cxString_Type               &PyUnicode_Type
+    #define cxString_Check              PyUnicode_Check
+#else
+    #define cxString_Type               &PyBytes_Type
+    #define cxString_Check              PyBytes_Check
 #endif
 
 
@@ -430,29 +443,62 @@ static int IsLoggingAtLevelForPython(
 
 
 //-----------------------------------------------------------------------------
+// GetEncodedStringForPython()
+//   Return an encoded string given a Python string or Unicode value.
+//-----------------------------------------------------------------------------
+static int GetEncodedStringForPython(
+    PyObject *value,                    // value to encode
+    PyObject **encodedValue)            // encoded value (OUT)
+{
+    if (PyUnicode_Check(value)) {
+        *encodedValue = PyUnicode_AsEncodedString(value, NULL, NULL);
+        if (!encodedValue)
+            return -1;
+    } else if (PyBytes_Check(value)) {
+        Py_INCREF(value);
+        *encodedValue = value;
+    } else {
+        PyErr_SetString(PyExc_TypeError, "expecting a string");
+        return -1;
+    }
+
+    return 0;
+}
+
+
+//-----------------------------------------------------------------------------
 // WriteMessageForPython()
 //   Write a message for Python given the known logging state.
 //-----------------------------------------------------------------------------
 static int WriteMessageForPython(
     unsigned long level,                // level at which message is written
-    const char *message)                // message to write
+    PyObject *messageObj)               // message object to write
 {
     udt_LoggingState *loggingState;
+    PyObject *encodedMessage;
     int result = 0;
 
+    // determine actual message to write
+    if (GetEncodedStringForPython(messageObj, &encodedMessage) < 0)
+        return -1;
+
+    // actually write the message
     loggingState = GetLoggingState();
     Py_BEGIN_ALLOW_THREADS
     if (loggingState) {
         ACQUIRE_LOCK(loggingState->lock);
-        result = WriteMessage(loggingState->state, level, message);
+        result = WriteMessage(loggingState->state, level,
+                PyBytes_AS_STRING(encodedMessage));
         RELEASE_LOCK(loggingState->lock);
     } else {
         ACQUIRE_LOCK(gLoggingStateLock);
         if (gLoggingState)
-            result = WriteMessage(gLoggingState, level, message);
+            result = WriteMessage(gLoggingState, level,
+                    PyBytes_AS_STRING(encodedMessage));
         RELEASE_LOCK(gLoggingStateLock);
     }
     Py_END_ALLOW_THREADS
+    Py_DECREF(encodedMessage);
     return result;
 }
 
@@ -1189,7 +1235,7 @@ CX_LOGGING_API int LogPythonObject(
     const char *name,                   // name to display
     PyObject *object)                   // object to log
 {
-    PyObject *stringRep;
+    PyObject *stringRep, *encodedStringRep;
     int result;
 
     if (!object) {
@@ -1197,9 +1243,14 @@ CX_LOGGING_API int LogPythonObject(
     } else {
         stringRep = PyObject_Str(object);
         if (stringRep) {
-            result = LogMessageForPythonV(logLevel, "%s%s => %s", prefix, name,
-                    PyBytes_AS_STRING(stringRep));
+            if (GetEncodedStringForPython(stringRep, &encodedStringRep) < 0) {
+                Py_DECREF(stringRep);
+                return -1;
+            }
             Py_DECREF(stringRep);
+            result = LogMessageForPythonV(logLevel, "%s%s => %s", prefix, name,
+                    PyBytes_AS_STRING(encodedStringRep));
+            Py_DECREF(encodedStringRep);
         } else {
             result = LogMessageForPythonV(logLevel,
                     "%s%s => unable to stringify", prefix, name);
@@ -1273,9 +1324,8 @@ CX_LOGGING_API int LogPythonExceptionWithTraceback(
     PyObject *value,                    // exception value
     PyObject *traceback)                // exception traceback
 {
-    PyObject *module, *method, *args, *result, *line;
+    PyObject *module, *method, *args, *result, *line, *encodedLine;
     Py_ssize_t i, numElements;
-    char *string;
 
     BaseLogPythonException(message, type, value);
     module = PyImport_ImportModule("traceback");
@@ -1305,13 +1355,13 @@ CX_LOGGING_API int LogPythonExceptionWithTraceback(
     }
     for (i = 0; i < numElements; i++) {
         line = PyList_GET_ITEM(result, i);
-        string = PyBytes_AsString(line);
-        if (!string) {
-            Py_DECREF(result);
-            return LogPythonExceptionNoTraceback("cannot get string");
-        }
-        LogMessageForPythonV(LOG_LEVEL_ERROR, "    %s", string);
+        if (GetEncodedStringForPython(line, &encodedLine) < 0)
+            return -1;
+        LogMessageForPythonV(LOG_LEVEL_ERROR, "    %s",
+                PyBytes_AS_STRING(encodedLine));
+        Py_DECREF(encodedLine);
     }
+    Py_DECREF(result);
 
     return -1;
 }
@@ -1344,19 +1394,19 @@ static int LogMessageFromErrorObj(
     unsigned long level,                // log level
     PyObject *errorObj)                 // error object to log
 {
-    PyObject *message;
-    char *buffer;
+    PyObject *message, *encodedMessage;
 
     message = PyObject_GetAttrString(errorObj, "message");
     if (!message)
         return LogPythonException("no message on error object");
-    buffer = PyBytes_AsString(message);
-    if (!buffer) {
+    if (GetEncodedStringForPython(message, &encodedMessage) < 0) {
         Py_DECREF(message);
-        return LogPythonException("message attribute is not a string");
+        return -1;
     }
-    LogMessageForPythonV(level, "    Message: %s", buffer);
     Py_DECREF(message);
+    LogMessageForPythonV(level, "    Message: %s",
+            PyBytes_AS_STRING(encodedMessage));
+    Py_DECREF(encodedMessage);
     return -1;
 }
 
@@ -1392,9 +1442,8 @@ static int LogArgumentsFromErrorObj(
     unsigned long level,                // log level
     PyObject *errorObj)                 // error object to examine
 {
-    PyObject *dict, *items, *item, *key, *value;
+    PyObject *dict, *items, *item, *key, *encodedKey, *value;
     Py_ssize_t i, size;
-    char *keyString;
 
     dict = PyObject_GetAttrString(errorObj, "arguments");
     if (!dict)
@@ -1417,12 +1466,11 @@ static int LogArgumentsFromErrorObj(
         item = PyList_GET_ITEM(items, i);
         key = PyTuple_GET_ITEM(item, 0);
         value = PyTuple_GET_ITEM(item, 1);
-        keyString = PyBytes_AsString(key);
-        if (!keyString) {
-            Py_DECREF(items);
-            return LogPythonException("key value is not a string");
-        }
-        LogPythonObject(level, "        ", keyString, value);
+        if (GetEncodedStringForPython(key, &encodedKey) < 0)
+            return -1;
+        LogPythonObject(level, "        ", PyBytes_AS_STRING(encodedKey),
+                value);
+        Py_DECREF(encodedKey);
     }
     Py_DECREF(items);
     return -1;
@@ -1439,9 +1487,8 @@ static int LogListOfStringsFromErrorObj(
     char *attributeName,                // attribute name to examine
     const char *header)                 // header to log
 {
+    PyObject *list, *encodedValue, *value;
     Py_ssize_t i, size;
-    PyObject *list;
-    char *buffer;
 
     list = PyObject_GetAttrString(errorObj, attributeName);
     if (!list)
@@ -1453,12 +1500,12 @@ static int LogListOfStringsFromErrorObj(
     }
     LogMessageForPythonV(level, "    %s:", header);
     for (i = 0; i < size; i++) {
-        buffer = PyBytes_AsString(PyList_GET_ITEM(list, i));
-        if (!buffer) {
-            Py_DECREF(list);
-            return LogPythonException("value in list is not a string");
-        }
-        LogMessageForPythonV(level, "        %s", buffer);
+        value = PyList_GET_ITEM(list, i);
+        if (GetEncodedStringForPython(value, &encodedValue) < 0)
+            return -1;
+        LogMessageForPythonV(level, "        %s",
+                PyBytes_AS_STRING(encodedValue));
+        Py_DECREF(encodedValue);
     }
     Py_DECREF(list);
     return -1;
@@ -1566,7 +1613,7 @@ static PyObject* LogMessageForPythonWithLevel(
         tempArgs = PyTuple_GetSlice(args, startingIndex, startingIndex + 1);
         if (!tempArgs)
             return NULL;
-        if (!PyArg_ParseTuple(tempArgs, "S", &format)) {
+        if (!PyArg_ParseTuple(tempArgs, "O", &format)) {
             Py_DECREF(tempArgs);
             return NULL;
         }
@@ -1575,15 +1622,21 @@ static PyObject* LogMessageForPythonWithLevel(
                 PyTuple_GET_SIZE(args));
         if (!tempArgs)
             return NULL;
-#if PY_MAJOR_VERSION >= 3
-        temp = PyUnicode_Format(format, tempArgs);
-#else
-        temp = PyString_Format(format, tempArgs);
+        if (PyUnicode_Check(format))
+            temp = PyUnicode_Format(format, tempArgs);
+#if PY_MAJOR_VERSION < 3
+        else if (PyBytes_Check(format))
+            temp = PyBytes_Format(format, tempArgs);
 #endif
+        else {
+            PyErr_SetString(PyExc_TypeError, "format must be a string");
+            Py_DECREF(tempArgs);
+            return NULL;
+        }
         Py_DECREF(tempArgs);
         if (!temp)
             return NULL;
-        if (WriteMessageForPython(level, PyBytes_AS_STRING(temp)) < 0) {
+        if (WriteMessageForPython(level, temp) < 0) {
             Py_DECREF(temp);
             return PyErr_SetFromErrno(PyExc_OSError);
         }
@@ -1909,10 +1962,22 @@ static PyObject* GetLoggingFileNameForPython(
 
     loggingState = GetLoggingState();
     if (loggingState)
+#if PY_MAJOR_VERSION >= 3
+        return PyUnicode_Decode(loggingState->state->fileName,
+                strlen(loggingState->state->fileName),
+                Py_FileSystemDefaultEncoding, NULL);
+#else
         return PyBytes_FromString(loggingState->state->fileName);
+#endif
     ACQUIRE_LOCK(gLoggingStateLock);
     if (gLoggingState)
+#if PY_MAJOR_VERSION >= 3
+        fileNameObj = PyUnicode_Decode(gLoggingState->fileName,
+                strlen(gLoggingState->fileName), Py_FileSystemDefaultEncoding,
+                NULL);
+#else
         fileNameObj = PyBytes_FromString(gLoggingState->fileName);
+#endif
     else {
         Py_INCREF(Py_None);
         fileNameObj = Py_None;
@@ -1974,7 +2039,8 @@ static PyObject* SetExceptionInfoForPython(
     PyObject *baseClass, *message, *builder, *dict;
 
     message = builder = NULL;
-    if (!PyArg_ParseTuple(args, "O|OS", &baseClass, &builder, &message))
+    if (!PyArg_ParseTuple(args, "O|OO!", &baseClass, &builder, cxString_Type,
+            &message))
         return NULL;
 
     dict = GetThreadStateDictionary();
@@ -2004,7 +2070,8 @@ static PyObject* LogExceptionForPython(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    PyObject *value, *configuredExcBaseClass, *excBuilder, *dict, *messageObj;
+    PyObject *value, *configuredExcBaseClass, *excBuilder, *dict;
+    PyObject *messageObj = NULL, *encodedMessage = NULL;
     int isConfigured = 1, isBuilt = 0;
     PyThreadState *threadState;
     char *message = NULL;
@@ -2022,10 +2089,10 @@ static PyObject* LogExceptionForPython(
                 KEY_EXC_BASE_CLASS);
 
     // now determine if base class is configured or not
-    if (!value || PyBytes_Check(value)) {
+    if (!value || cxString_Check(value)) {
         isConfigured = 0;
         if (value)
-            message = PyBytes_AS_STRING(value);
+            messageObj = value;
         else {
             value = threadState->exc_value;
             if (configuredExcBaseClass && value) {
@@ -2054,23 +2121,26 @@ static PyObject* LogExceptionForPython(
     }
 
     // define message to display if not already defined
-    if (!message) {
-        if (dict) {
+    if (!messageObj) {
+        if (dict)
             messageObj = PyDict_GetItemString(dict, KEY_EXC_MESSAGE);
-            if (messageObj)
-                message = PyBytes_AS_STRING(messageObj);
-        }
-        if (!message)
+        if (!messageObj)
             message = "Python exception encountered:";
     }
 
     // display message
+    if (messageObj) {
+        if (GetEncodedStringForPython(messageObj, &encodedMessage) < 0)
+            return NULL;
+        message = PyBytes_AS_STRING(encodedMessage);
+    }
     if (isConfigured) {
         LogConfiguredException(value, message);
     } else {
         LogPythonExceptionWithTraceback(message, threadState->exc_type,
                 threadState->exc_value, threadState->exc_traceback);
     }
+    Py_XDECREF(encodedMessage);
 
     // return value is a configured exception if possible; otherwise None
     if (isBuilt)
