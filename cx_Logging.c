@@ -486,6 +486,10 @@ static int GetEncodedStringForPython(
             encoding = PyBytes_AS_STRING(encodingObj);
     }
 
+if (encoding)
+printf("Encoding is '%s'\n", encoding);
+else printf("Encoding is NULL\n");
+
     if (PyUnicode_Check(value)) {
         *encodedValue = PyUnicode_AsEncodedString(value, encoding, NULL);
         if (!encodedValue)
@@ -503,10 +507,10 @@ static int GetEncodedStringForPython(
 
 
 //-----------------------------------------------------------------------------
-// StartLoggingHelper()
+// SetEncodingHelper()
 //   Set the encoding value for Python.
 //-----------------------------------------------------------------------------
-static PyObject* StartLoggingHelper(
+static PyObject* SetEncodingHelper(
     PyObject *encoding)                 // encoding value to use
 {
     PyObject *dict, *encodedEncoding;
@@ -1819,7 +1823,7 @@ static PyObject* StartLoggingForPython(
         return PyErr_SetFromErrnoWithFilename(PyExc_OSError, fileName);
     }
     PyMem_Free(fileName);
-    return StartLoggingHelper(encoding);
+    return SetEncodingHelper(encoding);
 }
 
 
@@ -1842,7 +1846,7 @@ static PyObject* StartLoggingStderrForPython(
             gStartLoggingNoFileKeywordList, &level, &prefix, &encoding))
         return NULL;
     StartLoggingStderr(level, prefix);
-    return StartLoggingHelper(encoding);
+    return SetEncodingHelper(encoding);
 }
 
 
@@ -1865,7 +1869,7 @@ static PyObject* StartLoggingStdoutForPython(
             gStartLoggingNoFileKeywordList, &level, &prefix, &encoding))
         return NULL;
     StartLoggingStdout(level, prefix);
-    return StartLoggingHelper(encoding);
+    return SetEncodingHelper(encoding);
 }
 
 
@@ -1896,7 +1900,7 @@ static PyObject *StartLoggingForThreadForPython(
         return NULL;
     }
     PyMem_Free(fileName);
-    return StartLoggingHelper(encoding);
+    return SetEncodingHelper(encoding);
 }
 
 
@@ -2118,6 +2122,22 @@ static PyObject* SetExceptionInfoForPython(
 
 
 //-----------------------------------------------------------------------------
+// SetEncodingForPython()
+//   Set the encoding to use for Python.
+//-----------------------------------------------------------------------------
+static PyObject* SetEncodingForPython(
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
+{
+    PyObject *encoding;
+
+    if (!PyArg_ParseTuple(args, "O", &encoding))
+        return NULL;
+    return SetEncodingHelper(encoding);
+}
+
+
+//-----------------------------------------------------------------------------
 // LogExceptionForPython()
 //   Set the current logging state with the state acquired earlier by a call to
 // GetLoggingStateForPython().
@@ -2242,6 +2262,7 @@ static PyMethodDef gLoggingModuleMethods[] = {
             METH_VARARGS },
     { "SetExceptionInfo", (PyCFunction) SetExceptionInfoForPython,
             METH_VARARGS },
+    { "SetEncoding", (PyCFunction) SetEncodingForPython, METH_VARARGS },
     { "LogException", (PyCFunction) LogExceptionForPython, METH_VARARGS },
     { NULL }
 };
