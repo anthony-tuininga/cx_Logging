@@ -12,6 +12,7 @@
 #endif
 
 #define KEY_LOGGING_STATE       "cx_Logging_LoggingState"
+#define KEY_ENCODING            "cx_Logging_Encoding"
 #define KEY_EXC_BASE_CLASS      "cx_Logging_ExcBaseClass"
 #define KEY_EXC_MESSAGE         "cx_Logging_ExcMessage"
 #define KEY_EXC_BUILDER         "cx_Logging_ExcBuilder"
@@ -85,6 +86,13 @@ typedef int Py_ssize_t;
 // define global logging state
 static LoggingState *gLoggingState;
 static LOCK_TYPE gLoggingStateLock;
+
+
+// define keywords for common Python methods
+static char *gStartLoggingWithFileKeywordList[] = {"fileName", "level",
+        "maxFiles", "maxFileSize", "prefix", "encoding", NULL};
+static char *gStartLoggingNoFileKeywordList[] = {"level", "prefix", "encoding",
+        NULL};
 
 
 //-----------------------------------------------------------------------------
@@ -443,6 +451,24 @@ static int IsLoggingAtLevelForPython(
 
 
 //-----------------------------------------------------------------------------
+// GetThreadStateDictionary()
+//   Return the thread state dictionary and sets an exception if it is not
+// available.
+//-----------------------------------------------------------------------------
+static PyObject* GetThreadStateDictionary(void)
+{
+    PyObject *dict;
+
+    dict = PyThreadState_GetDict();
+    if (!dict) {
+        LogMessage(LOG_LEVEL_WARNING, "no thread state dictionary");
+        return NULL;
+    }
+    return dict;
+}
+
+
+//-----------------------------------------------------------------------------
 // GetEncodedStringForPython()
 //   Return an encoded string given a Python string or Unicode value.
 //-----------------------------------------------------------------------------
@@ -450,8 +476,18 @@ static int GetEncodedStringForPython(
     PyObject *value,                    // value to encode
     PyObject **encodedValue)            // encoded value (OUT)
 {
+    PyObject *dict, *encodingObj;
+    char *encoding = NULL;
+
+    dict = GetThreadStateDictionary();
+    if (dict) {
+        encodingObj = PyDict_GetItemString(dict, KEY_ENCODING);
+        if (encodingObj)
+            encoding = PyBytes_AS_STRING(encodingObj);
+    }
+
     if (PyUnicode_Check(value)) {
-        *encodedValue = PyUnicode_AsEncodedString(value, NULL, NULL);
+        *encodedValue = PyUnicode_AsEncodedString(value, encoding, NULL);
         if (!encodedValue)
             return -1;
     } else if (PyBytes_Check(value)) {
@@ -463,6 +499,36 @@ static int GetEncodedStringForPython(
     }
 
     return 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// StartLoggingHelper()
+//   Set the encoding value for Python.
+//-----------------------------------------------------------------------------
+static PyObject* StartLoggingHelper(
+    PyObject *encoding)                 // encoding value to use
+{
+    PyObject *dict, *encodedEncoding;
+
+    if (encoding) {
+        dict = GetThreadStateDictionary();
+        if (!dict) {
+            PyErr_SetString(PyExc_RuntimeError,
+                    "unable to get thread state dictionary");
+            return NULL;
+        }
+        if (GetEncodedStringForPython(encoding, &encodedEncoding) < 0)
+            return NULL;
+        if (PyDict_SetItemString(dict, KEY_ENCODING, encodedEncoding) < 0) {
+            Py_DECREF(encodedEncoding);
+            return NULL;
+        }
+        Py_DECREF(encodedEncoding);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 
@@ -747,24 +813,6 @@ static PyTypeObject gPythonLoggingStateType = {
     0,                                  // tp_is_gc
     0                                   // tp_bases
 };
-
-
-//-----------------------------------------------------------------------------
-// GetThreadStateDictionary()
-//   Return the thread state dictionary and sets an exception if it is not
-// available.
-//-----------------------------------------------------------------------------
-static PyObject* GetThreadStateDictionary(void)
-{
-    PyObject *dict;
-
-    dict = PyThreadState_GetDict();
-    if (!dict) {
-        LogMessage(LOG_LEVEL_WARNING, "no thread state dictionary");
-        return NULL;
-    }
-    return dict;
-}
 
 
 //-----------------------------------------------------------------------------
@@ -1754,22 +1802,21 @@ static PyObject* StartLoggingForPython(
     PyObject *args,                     // arguments
     PyObject *keywordArgs)              // keyword arguments
 {
-    static char *keywordList[] = {"fileName", "level", "maxFiles",
-            "maxFileSize", "prefix", NULL};
     unsigned long level, maxFiles, maxFileSize;
     char *fileName, *prefix;
+    PyObject *encoding;
 
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "sl|lls", keywordList,
-            &fileName, &level, &maxFiles, &maxFileSize, &prefix))
+    encoding = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "sl|llsO",
+            gStartLoggingWithFileKeywordList, &fileName, &level, &maxFiles,
+            &maxFileSize, &prefix, &encoding))
         return NULL;
     if (StartLogging(fileName, level, maxFiles, maxFileSize, prefix) < 0)
         return PyErr_SetFromErrnoWithFilename(PyExc_OSError, fileName);
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return StartLoggingHelper(encoding);
 }
 
 
@@ -1779,18 +1826,20 @@ static PyObject* StartLoggingForPython(
 //-----------------------------------------------------------------------------
 static PyObject* StartLoggingStderrForPython(
     PyObject *self,                     // passthrough argument
-    PyObject *args)                     // arguments
+    PyObject *args,                     // arguments
+    PyObject *keywordArgs)              // keyword arguments
 {
     unsigned long level;
+    PyObject *encoding;
     char *prefix;
 
+    encoding = NULL;
     prefix = DEFAULT_PREFIX;
-    if (!PyArg_ParseTuple(args, "l|s", &level, &prefix))
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "l|sO",
+            gStartLoggingNoFileKeywordList, &level, &prefix, &encoding))
         return NULL;
     StartLoggingStderr(level, prefix);
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return StartLoggingHelper(encoding);
 }
 
 
@@ -1800,18 +1849,20 @@ static PyObject* StartLoggingStderrForPython(
 //-----------------------------------------------------------------------------
 static PyObject* StartLoggingStdoutForPython(
     PyObject *self,                     // passthrough argument
-    PyObject *args)                     // arguments
+    PyObject *args,                     // arguments
+    PyObject *keywordArgs)              // keyword arguments
 {
     unsigned long level;
+    PyObject *encoding;
     char *prefix;
 
+    encoding = NULL;
     prefix = DEFAULT_PREFIX;
-    if (!PyArg_ParseTuple(args, "l|s", &level, &prefix))
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "l|sO",
+            gStartLoggingNoFileKeywordList, &level, &prefix, &encoding))
         return NULL;
     StartLoggingStdout(level, prefix);
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return StartLoggingHelper(encoding);
 }
 
 
@@ -1824,23 +1875,22 @@ static PyObject *StartLoggingForThreadForPython(
     PyObject *args,                     // arguments
     PyObject *keywordArgs)              // keyword arguments
 {
-    static char *keywordList[] = {"fileName", "level", "maxFiles",
-            "maxFileSize", "prefix", NULL};
     unsigned long level, maxFiles, maxFileSize;
     char *fileName, *prefix;
+    PyObject *encoding;
 
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "sl|lls", keywordList,
-            &fileName, &level, &maxFiles, &maxFileSize, &prefix))
+    encoding = NULL;
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "sl|llsO",
+            gStartLoggingWithFileKeywordList, &fileName, &level, &maxFiles,
+            &maxFileSize, &prefix, &encoding))
         return NULL;
     if (StartLoggingForPythonThread(fileName, level, maxFiles, maxFileSize,
             prefix) < 0)
         return NULL;
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return StartLoggingHelper(encoding);
 }
 
 
@@ -2170,9 +2220,9 @@ static PyMethodDef gLoggingModuleMethods[] = {
     { "StartLoggingForThread", (PyCFunction) StartLoggingForThreadForPython,
             METH_VARARGS | METH_KEYWORDS},
     { "StartLoggingStderr", (PyCFunction) StartLoggingStderrForPython,
-            METH_VARARGS },
+            METH_VARARGS | METH_KEYWORDS},
     { "StartLoggingStdout", (PyCFunction) StartLoggingStdoutForPython,
-            METH_VARARGS },
+            METH_VARARGS | METH_KEYWORDS},
     { "StopLogging", (PyCFunction) StopLoggingForPython, METH_NOARGS },
     { "StopLoggingForThread", (PyCFunction) StopLoggingForThreadForPython,
             METH_NOARGS },
