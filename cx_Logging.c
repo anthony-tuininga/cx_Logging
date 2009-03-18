@@ -1810,12 +1810,15 @@ static PyObject* StartLoggingForPython(
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
     encoding = NULL;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "sl|llsO",
-            gStartLoggingWithFileKeywordList, &fileName, &level, &maxFiles,
-            &maxFileSize, &prefix, &encoding))
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsO",
+            gStartLoggingWithFileKeywordList, Py_FileSystemDefaultEncoding,
+            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding))
         return NULL;
-    if (StartLogging(fileName, level, maxFiles, maxFileSize, prefix) < 0)
+    if (StartLogging(fileName, level, maxFiles, maxFileSize, prefix) < 0) {
+        PyMem_Free(fileName);
         return PyErr_SetFromErrnoWithFilename(PyExc_OSError, fileName);
+    }
+    PyMem_Free(fileName);
     return StartLoggingHelper(encoding);
 }
 
@@ -1883,13 +1886,16 @@ static PyObject *StartLoggingForThreadForPython(
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
     encoding = NULL;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "sl|llsO",
-            gStartLoggingWithFileKeywordList, &fileName, &level, &maxFiles,
-            &maxFileSize, &prefix, &encoding))
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsO",
+            gStartLoggingWithFileKeywordList, Py_FileSystemDefaultEncoding,
+            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding))
         return NULL;
     if (StartLoggingForPythonThread(fileName, level, maxFiles, maxFileSize,
-            prefix) < 0)
+            prefix) < 0) {
+        PyMem_Free(fileName);
         return NULL;
+    }
+    PyMem_Free(fileName);
     return StartLoggingHelper(encoding);
 }
 
