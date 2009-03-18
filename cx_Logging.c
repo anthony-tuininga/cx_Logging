@@ -486,10 +486,6 @@ static int GetEncodedStringForPython(
             encoding = PyBytes_AS_STRING(encodingObj);
     }
 
-if (encoding)
-printf("Encoding is '%s'\n", encoding);
-else printf("Encoding is NULL\n");
-
     if (PyUnicode_Check(value)) {
         *encodedValue = PyUnicode_AsEncodedString(value, encoding, NULL);
         if (!encodedValue)
@@ -2133,6 +2129,7 @@ static PyObject* SetEncodingForPython(
 
     if (!PyArg_ParseTuple(args, "O", &encoding))
         return NULL;
+    LogPythonObject(LOG_LEVEL_DEBUG, "switching ", "encoding", encoding);
     return SetEncodingHelper(encoding);
 }
 
