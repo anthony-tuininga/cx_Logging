@@ -25,7 +25,7 @@ Front Matter
 ************
 
 
-Copyright |copy| 2007-2008 Colt WorleyParsons. All rights reserved.
+Copyright |copy| 2007-2009 Anthony Tuininga. All rights reserved.
 
 Copyright |copy| 2004-2007 Computronix. All rights reserved.
 
