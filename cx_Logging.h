@@ -17,7 +17,7 @@
 #endif
 
 // define platform specific variables
-#ifdef WIN32
+#ifdef MS_WINDOWS
     #include <windows.h>
     #define LOCK_TYPE CRITICAL_SECTION
     #ifdef __WIN32__
