@@ -2124,11 +2124,19 @@ static PyObject* SetEncodingForPython(
     PyObject *self,                     // passthrough argument
     PyObject *args)                     // arguments
 {
-    PyObject *encoding;
+    PyObject *encoding, *dict, *origEncoding = NULL;
 
     if (!PyArg_ParseTuple(args, "O", &encoding))
         return NULL;
-    LogPythonObject(LOG_LEVEL_DEBUG, "switching ", "encoding", encoding);
+    LogPythonObject(LOG_LEVEL_INFO, "switching ", "encoding", encoding);
+    dict = GetThreadStateDictionary();
+    if (dict)
+        origEncoding = PyDict_GetItemString(dict, KEY_ENCODING);
+    if (origEncoding)
+        LogPythonObject(LOG_LEVEL_INFO, "    original ", "encoding",
+                origEncoding);
+    else LogMessageV(LOG_LEVEL_INFO, "    original encoding => %s",
+            PyUnicode_GetDefaultEncoding());
     return SetEncodingHelper(encoding);
 }
 
