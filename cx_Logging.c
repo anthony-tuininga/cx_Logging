@@ -479,14 +479,13 @@ static int GetEncodedStringForPython(
     PyObject *dict, *encodingObj;
     char *encoding = NULL;
 
-    dict = GetThreadStateDictionary();
-    if (dict) {
-        encodingObj = PyDict_GetItemString(dict, KEY_ENCODING);
-        if (encodingObj)
-            encoding = PyBytes_AS_STRING(encodingObj);
-    }
-
     if (PyUnicode_Check(value)) {
+        dict = GetThreadStateDictionary();
+        if (dict) {
+            encodingObj = PyDict_GetItemString(dict, KEY_ENCODING);
+            if (encodingObj)
+                encoding = PyBytes_AS_STRING(encodingObj);
+        }
         *encodedValue = PyUnicode_AsEncodedString(value, encoding, NULL);
         if (!encodedValue)
             return -1;
