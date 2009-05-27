@@ -2117,6 +2117,41 @@ static PyObject* SetExceptionInfoForPython(
 
 
 //-----------------------------------------------------------------------------
+// GetEncodingForPython()
+//   Get the encoding used for Python.
+//-----------------------------------------------------------------------------
+static PyObject* GetEncodingForPython(
+    PyObject *self,                     // passthrough argument
+    PyObject *args)                     // arguments
+{
+    PyObject *encoding, *dict;
+
+    // if an encoding has been specified, return it
+    dict = GetThreadStateDictionary();
+    if (dict) {
+        encoding = PyDict_GetItemString(dict, KEY_ENCODING);
+        if (encoding) {
+#if PY_MAJOR_VERSION >= 3
+            return PyUnicode_Decode(PyBytes_AS_STRING(encoding),
+                    PyBytes_GET_SIZE(encoding), NULL, NULL);
+#else
+            Py_INCREF(encoding);
+            return encoding;
+#endif
+        }
+    }
+
+    // otherwise, return a representation of the default encoding
+#if PY_MAJOR_VERSION >= 3
+    return PyUnicode_Decode(PyUnicode_GetDefaultEncoding(),
+            strlen(PyUnicode_GetDefaultEncoding()), NULL, NULL);
+#else
+    return PyBytes_FromString(PyUnicode_GetDefaultEncoding());
+#endif
+}
+
+
+//-----------------------------------------------------------------------------
 // SetEncodingForPython()
 //   Set the encoding to use for Python.
 //-----------------------------------------------------------------------------
@@ -2132,11 +2167,22 @@ static PyObject* SetEncodingForPython(
     dict = GetThreadStateDictionary();
     if (dict)
         origEncoding = PyDict_GetItemString(dict, KEY_ENCODING);
-    if (origEncoding)
+    if (origEncoding) {
+#if PY_MAJOR_VERSION >= 3
+        origEncoding = PyUnicode_Decode(PyBytes_AS_STRING(origEncoding),
+                PyBytes_GET_SIZE(origEncoding), NULL, NULL);
+        if (!origEncoding)
+            return NULL;
+#endif
         LogPythonObject(LOG_LEVEL_INFO, "    original ", "encoding",
                 origEncoding);
-    else LogMessageV(LOG_LEVEL_INFO, "    original encoding => %s",
-            PyUnicode_GetDefaultEncoding());
+#if PY_MAJOR_VERSION >= 3
+        Py_DECREF(origEncoding);
+#endif
+    } else {
+        LogMessageV(LOG_LEVEL_INFO, "    original encoding => %s",
+                PyUnicode_GetDefaultEncoding());
+    }
     return SetEncodingHelper(encoding);
 }
 
@@ -2266,6 +2312,7 @@ static PyMethodDef gLoggingModuleMethods[] = {
             METH_VARARGS },
     { "SetExceptionInfo", (PyCFunction) SetExceptionInfoForPython,
             METH_VARARGS },
+    { "GetEncoding", (PyCFunction) GetEncodingForPython, METH_NOARGS },
     { "SetEncoding", (PyCFunction) SetEncodingForPython, METH_VARARGS },
     { "LogException", (PyCFunction) LogExceptionForPython, METH_VARARGS },
     { NULL }
