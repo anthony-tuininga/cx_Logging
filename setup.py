@@ -19,7 +19,7 @@ from distutils.core import setup
 from distutils.extension import Extension
 from distutils import sysconfig
 
-BUILD_VERSION = "1.4"
+BUILD_VERSION = "2.0"
 
 # define class to ensure the file name given includes the Python version
 class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):

@@ -1,3 +1,19 @@
+Changes from 1.4 to 2.0
+ 1) Added support for Python 3.x.
+ 2) Added support for logging Unicode strings in Python 2.x.
+ 3) Added support for setting the encoding to use for Unicode strings when
+    starting logging and a method SetEncoding() for setting it afterwards.
+ 4) Added method GetEncoding() which can be used to determine the encoding
+    currently in use.
+ 5) Added method SetExceptionInfo() which allows specification of the base
+    exception class, a method for creating an instance of that class and a
+    message that will be displayed prior to the logging of exceptions of that
+    class.
+ 6) The method LogException() now returns a configured exception if one was
+    built or passed in directly.
+ 7) Transformed documentation to new style used in Python 2.6 and higher.
+ 8) Added support for compiling on 64-bit Windows.
+
 Changes from 1.3 to 1.4
  1) On Windows, ensure that the log files are opened in such a way that they
     are not inherited by subprocesses; otherwise, the existence of a
