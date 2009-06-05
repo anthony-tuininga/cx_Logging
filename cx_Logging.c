@@ -28,7 +28,7 @@
 
 
 // define platform specific methods for manipulating locks
-#ifdef WIN32
+#ifdef MS_WINDOWS
 #include <malloc.h>
 #define INITIALIZE_LOCK(lock)   InitializeCriticalSection(&lock)
 #define ACQUIRE_LOCK(lock)      EnterCriticalSection(&lock)
@@ -90,13 +90,14 @@ static LOCK_TYPE gLoggingStateLock;
 
 // define keywords for common Python methods
 static char *gStartLoggingWithFileKeywordList[] = {"fileName", "level",
-        "maxFiles", "maxFileSize", "prefix", "encoding", NULL};
+        "maxFiles", "maxFileSize", "prefix", "encoding", "reuse", "rotate",
+        NULL};
 static char *gStartLoggingNoFileKeywordList[] = {"level", "prefix", "encoding",
         NULL};
 
 
 //-----------------------------------------------------------------------------
-// OpenFileForWriting()
+// LoggingState_OpenFileForWriting()
 //   Open the file for writing, if possible. In order to workaround the nasty
 // fact that on Windows file handles are inherited by child processes by
 // default and open files cannot be renamed, the handle opened by fopen() is
@@ -104,35 +105,79 @@ static char *gStartLoggingNoFileKeywordList[] = {"level", "prefix", "encoding",
 // this manner, any subprocess created does not prevent log file rotation from
 // occurring.
 //-----------------------------------------------------------------------------
-static FILE* OpenFileForWriting(const char* path)
+static int LoggingState_OpenFileForWriting(
+    LoggingState *state)                // state to use for writing
 {
-#ifdef WIN32
+    struct stat statBuffer;
+
+#ifdef MS_WINDOWS
     #ifndef UNDER_CE
     HANDLE sourceHandle, targetHandle;
     int fd, dupfd;
     #endif
 #endif
-    FILE *fp;
 
-    fp = fopen(path, "w");
-#ifdef WIN32
+    // verify that a file is not reused if such is not supposed to take place
+    if (!state->reuseExistingFiles &&
+            stat(state->fileName, &statBuffer) == 0) {
+        sprintf(state->exceptionInfo.message,
+                "File %s exists and reuse not specified.", state->fileName);
+        return -1;
+    }
+
+    // open file for writing
+    state->fp = fopen(state->fileName, "w");
+    if (!state->fp) {
+        sprintf(state->exceptionInfo.message,
+                "Failed to open file %s: OS error %d", state->fileName, errno);
+        return -1;
+    }
+
+#ifdef MS_WINDOWS
     #ifndef UNDER_CE
-    if (!fp)
-        return NULL;
-    fd = fileno(fp);
+    // duplicate file handle as described above
+    fd = fileno(state->fp);
     sourceHandle = (HANDLE) _get_osfhandle(fd);
     if (!DuplicateHandle(GetCurrentProcess(), sourceHandle,
             GetCurrentProcess(), &targetHandle, 0, FALSE,
             DUPLICATE_SAME_ACCESS)) {
-        fclose(fp);
-        return NULL;
+        fclose(state->fp);
+        state->fp = NULL;
+        sprintf(state->exceptionInfo.message,
+                "Failed to duplicate handle on file %s: Windows error %d",
+                state->fileName, GetLastError());
+        return -1;
     }
-    fclose(fp);
+    fclose(state->fp);
     dupfd = _open_osfhandle((intptr_t) targetHandle, O_TEXT);
-    fp = _fdopen(dupfd, "w");
+    state->fp = _fdopen(dupfd, "w");
+    if (!state->fp) {
+        sprintf(state->exceptionInfo.message,
+                "Failed to open file from handle for %s", state->fileName);
+        return -1;
+    }
     #endif
 #endif
-    return fp;
+
+    return 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// WriteString()
+//   Write string to the file.
+//-----------------------------------------------------------------------------
+static int WriteString(
+    LoggingState *state,                // state to use for writing
+    const char *string)                 // string to write to the file
+{
+    if (fputs(string, state->fp) == EOF) {
+        sprintf(state->exceptionInfo.message,
+                "Failed to write to file %s: OS error %d.", state->fileName,
+                errno);
+        return -1;
+    }
+    return 0;
 }
 
 
@@ -145,35 +190,23 @@ static int WriteLevel(
     unsigned long level)                // level to write to the file
 {
     char temp[20];
-    int result;
 
     switch(level) {
         case LOG_LEVEL_DEBUG:
-            result = fputs("DEBUG", state->fp);
-            break;
+            return WriteString(state, "DEBUG");
         case LOG_LEVEL_INFO:
-            result = fputs("INFO", state->fp);
-            break;
+            return WriteString(state, "INFO");
         case LOG_LEVEL_WARNING:
-            result = fputs("WARN", state->fp);
-            break;
+            return WriteString(state, "WARN");
         case LOG_LEVEL_ERROR:
-            result = fputs("ERROR", state->fp);
-            break;
+            return WriteString(state, "ERROR");
         case LOG_LEVEL_CRITICAL:
-            result = fputs("CRIT", state->fp);
-            break;
+            return WriteString(state, "CRIT");
         case LOG_LEVEL_NONE:
-            result = fputs("TRACE", state->fp);
-            break;
-        default:
-            sprintf(temp, "%ld", level);
-            result = fputs(temp, state->fp);
+            return WriteString(state, "TRACE");
     }
-
-    if (result == EOF)
-        return -1;
-    return 0;
+    sprintf(temp, "%ld", level);
+    return WriteString(state, temp);
 }
 
 
@@ -185,7 +218,7 @@ static int WritePrefix(
     LoggingState *state,                // state to use for writing
     unsigned long level)                // level at which to write
 {
-#ifdef WIN32
+#ifdef MS_WINDOWS
     SYSTEMTIME time;
     #ifdef UNDER_CE
     DWORD ticks;
@@ -201,26 +234,30 @@ static int WritePrefix(
     ptr = state->prefix;
     while (*ptr) {
         if (*ptr != '%') {
-            if (fputc(*ptr++, state->fp) == EOF)
+            if (fputc(*ptr++, state->fp) == EOF) {
+                sprintf(state->exceptionInfo.message,
+                        "Failed to write character to file %s.",
+                        state->fileName);
                 return -1;
+            }
             continue;
         }
         ptr++;
         switch(*ptr) {
             case 'i':
-#ifdef WIN32
+#ifdef MS_WINDOWS
                 sprintf(temp, THREAD_FORMAT, (long) GetCurrentThreadId());
 #else
                 sprintf(temp, THREAD_FORMAT, (long) pthread_self());
 #endif
-                if (fputs(temp, state->fp) == EOF)
+                if (WriteString(state, temp) < 0)
                     return -1;
                 break;
             case 'd':
             case 't':
                 if (!gotTime) {
                     gotTime = 1;
-#if defined WIN32
+#if defined MS_WINDOWS
                     GetLocalTime(&time);
     #if defined UNDER_CE
                     ticks = GetTickCount();
@@ -230,7 +267,7 @@ static int WritePrefix(
                     localtime_r(&timeOfDay.tv_sec, &time);
 #endif
                 }
-#ifdef WIN32
+#ifdef MS_WINDOWS
                 if (*ptr == 'd')
                     sprintf(temp, DATE_FORMAT, time.wYear, time.wMonth,
                             time.wDay);
@@ -249,7 +286,7 @@ static int WritePrefix(
                     sprintf(temp, TIME_FORMAT, time.tm_hour, time.tm_min,
                             time.tm_sec, (int) (timeOfDay.tv_usec / 1000));
 #endif
-                if (fputs(temp, state->fp) == EOF)
+                if (WriteString(state, temp) < 0)
                     return -1;
                 break;
             case 'l':
@@ -259,17 +296,42 @@ static int WritePrefix(
             case '\0':
                 break;
             default:
-                if (fputc('%', state->fp) == EOF)
+                if (fputc('%', state->fp) == EOF ||
+                        fputc(*ptr, state->fp) == EOF) {
+                    sprintf(state->exceptionInfo.message,
+                            "Failed to write %% directive to file %s.",
+                            state->fileName);
                     return -1;
-                if (fputc(*ptr, state->fp) == EOF)
-                    return -1;
+                }
         }
         if (*ptr)
             ptr++;
     }
     if (*state->prefix) {
-        if (fputc(' ', state->fp) == EOF)
+        if (fputc(' ', state->fp) == EOF) {
+            sprintf(state->exceptionInfo.message,
+                    "Failed to write separator to file %s.", state->fileName);
             return -1;
+        }
+    }
+
+    return 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// WriteTrailer()
+//   Write the trailing line feed to the file and flush it.
+//-----------------------------------------------------------------------------
+static int WriteTrailer(
+    LoggingState *state)                // state to use for writing
+{
+    if (WriteString(state, "\n") < 0)
+        return -1;
+    if (fflush(state->fp) == EOF) {
+        sprintf(state->exceptionInfo.message,
+                "Cannot flush file %s", state->fileName);
+        return -1;
     }
 
     return 0;
@@ -279,43 +341,17 @@ static int WritePrefix(
 #ifndef UNDER_CE
 //-----------------------------------------------------------------------------
 // SwitchLogFiles()
-//   Switch log files by renaming the current log file and any other log files
-// that would be in the way. The last log file that would be renamed is deleted
-// if keeping it would exceed the maximum number of files to keep.
+//   Switch log files by moving to the next file in sequence. An exception is
+// raised if the file exists and reuse has not been specified.
 //-----------------------------------------------------------------------------
 static int SwitchLogFiles(
     LoggingState *state)                // state to use
 {
-    unsigned long lastFileFound, i;
-    struct stat statBuffer;
-
-    // attempt to find a gap
-    lastFileFound = 0;
-    for (i = 1; i < state->maxFiles; i++) {
-        sprintf(state->fileNameTemp_1, state->fileMask, i);
-        if (stat(state->fileNameTemp_1, &statBuffer) < 0)
-            break;
-        lastFileFound = i;
-    }
-
-    // if no gap, delete the last log file
-    if (lastFileFound == state->maxFiles - 1) {
-        if (unlink(state->fileNameTemp_1) < 0)
-            return -1;
-        lastFileFound--;
-    }
-
-    // rename each of the other files in sequence
-    for (i = lastFileFound; i > 0; i--) {
-        sprintf(state->fileNameTemp_1, state->fileMask, i);
-        sprintf(state->fileNameTemp_2, state->fileMask, i + 1);
-        if (rename(state->fileNameTemp_1, state->fileNameTemp_2) < 0)
-            return -1;
-    }
-
-    // finally, rename the original log file
-    sprintf(state->fileNameTemp_1, state->fileMask, 1);
-    if (rename(state->fileName, state->fileNameTemp_1) < 0)
+    state->seqNum++;
+    if (state->seqNum > state->maxFiles)
+        state->seqNum = 1;
+    sprintf(state->fileName, state->fileNameMask, state->seqNum);
+    if (LoggingState_OpenFileForWriting(state) < 0)
         return -1;
 
     return 0;
@@ -332,32 +368,31 @@ static int CheckForLogFileFull(
 {
     long position;
 
-    if (state->fileOwned && state->fp && state->maxFiles > 1) {
+    if (state->rotateFiles && state->maxFiles > 1) {
         position = ftell(state->fp);
-        if (position < 0)
+        if (position < 0) {
+            sprintf(state->exceptionInfo.message,
+                    "Cannot get file position for %s: OS error %d.",
+                    state->fileName, errno);
             return -1;
+        }
         if (position >= state->maxFileSize) {
             if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
                 return -1;
-            if (fputs("switching to a new log file\n", state->fp) == EOF)
+            if (WriteString(state, "switching to a new log file\n") < 0)
                 return -1;
             fclose(state->fp);
             state->fp = NULL;
             if (SwitchLogFiles(state) < 0)
                 return -1;
-            state->fp = OpenFileForWriting(state->fileName);
-            if (!state->fp)
-                return -1;
             if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
                 return -1;
-            if (fputs("starting logging (after switch) at level ",
-                    state->fp) == EOF)
+            if (WriteString(state,
+                    "starting logging (after switch) at level ") < 0)
                 return -1;
             if (WriteLevel(state, state->level) < 0)
                 return -1;
-            if (fputs("\n", state->fp) == EOF)
-                return -1;
-            if (fflush(state->fp) == EOF)
+            if (WriteTrailer(state) < 0)
                 return -1;
         }
     }
@@ -384,11 +419,9 @@ static int WriteMessage(
             return -1;
         if (!message)
             message = "(null)";
-        if (fputs(message, state->fp) == EOF)
+        if (WriteString(state, message) < 0)
             return -1;
-        if (fputs("\n", state->fp) == EOF)
-            return -1;
-        if (fflush(state->fp) == EOF)
+        if (WriteTrailer(state) < 0)
             return -1;
     }
     return 0;
@@ -413,11 +446,13 @@ static int WriteMessageWithFormat(
     if (state->fp) {
         if (WritePrefix(state, level) < 0)
             return -1;
-        if (vfprintf(state->fp, format, arguments) < 0)
+        if (vfprintf(state->fp, format, arguments) < 0) {
+            sprintf(state->exceptionInfo.message,
+                    "Cannot write formatted message to file %s",
+                    state->fileName);
             return -1;
-        if (fputs("\n", state->fp) == EOF)
-            return -1;
-        if (fflush(state->fp) == EOF)
+        }
+        if (WriteTrailer(state) < 0)
             return -1;
     }
     return 0;
@@ -583,55 +618,74 @@ static void LoggingState_Free(
     }
     if (state->fileName)
         free(state->fileName);
-    if (state->fileMask)
-        free(state->fileMask);
-    if (state->fileNameTemp_1)
-        free(state->fileNameTemp_1);
-    if (state->fileNameTemp_2)
-        free(state->fileNameTemp_2);
+    if (state->fileNameMask)
+        free(state->fileNameMask);
     if (state->prefix)
         free(state->prefix);
     free(state);
 }
 
 
+#ifndef UNDER_CE
+//-----------------------------------------------------------------------------
+// LoggingState_InitializeSeqNum()
+//   Initialize the sequence number to start logging at when rotating files.
+// The sequence number to use is the one following the most recent log file
+// if all possible log file names are already used. If there is an available
+// log file name, the lowest sequence number is used.
+//-----------------------------------------------------------------------------
+static void LoggingState_InitializeSeqNum(
+    LoggingState *state)                // logging state just created
+{
+    struct stat statBuffer;
+    unsigned long seqNum;
+    time_t mtime = 0;
+
+    for (seqNum = 1; seqNum <= state->maxFiles; seqNum++) {
+        sprintf(state->fileName, state->fileNameMask, seqNum);
+        if (stat(state->fileName, &statBuffer) < 0) {
+            state->seqNum = seqNum;
+            break;
+        }
+        if (statBuffer.st_mtime > mtime) {
+            state->seqNum = seqNum + 1;
+            if (state->seqNum > state->maxFiles)
+                state->seqNum = 1;
+            mtime = statBuffer.st_mtime;
+        }
+    }
+    sprintf(state->fileName, state->fileNameMask, state->seqNum);
+}
+#endif
+
+
 //-----------------------------------------------------------------------------
 // LoggingState_OnCreate()
-//   Called when the logging state is created. It opens the file and writes the
-// initial log messages to it.
+//   Called when the logging state is created and a file needs to be opened. It
+// opens the file and writes the initial log messages to it.
 //-----------------------------------------------------------------------------
 static int LoggingState_OnCreate(
     LoggingState *state)                // logging state just created
 {
-    struct stat statBuffer;
 
-    // open the file, if necessary
-    if (!state->fp) {
+    // open the file
 #ifndef UNDER_CE
-        if (state->maxFiles > 1 && stat(state->fileName, &statBuffer) == 0) {
-            if (SwitchLogFiles(state) < 0)
-                return -1;
-        }
+    if (state->rotateFiles && state->maxFiles > 1)
+        LoggingState_InitializeSeqNum(state);
 #endif
-        state->fileOwned = 1;
-        state->fp = OpenFileForWriting(state->fileName);
-        if (!state->fp)
-            return -1;
-    }
+    state->fileOwned = 1;
+    if (LoggingState_OpenFileForWriting(state) < 0)
+        return -1;
 
     // put out an initial message regardless of level
-    if (state->fileOwned) {
-        if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
-            return -1;
-        if (fputs("starting logging at level ", state->fp) == EOF)
-            return -1;
-        if (WriteLevel(state, state->level) < 0)
-            return -1;
-        if (fputs("\n", state->fp) == EOF)
-            return -1;
-        if (fflush(state->fp) == EOF)
-            return -1;
-    }
+    if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
+        return -1;
+    if (WriteString(state, "starting logging at level ") < 0)
+        return -1;
+    if (WriteLevel(state, state->level) < 0)
+        return -1;
+    if (WriteTrailer(state) < 0)
+        return -1;
 
     return 0;
 }
@@ -647,38 +701,75 @@ static LoggingState* LoggingState_New(
     unsigned long level,                // level to use
     unsigned long maxFiles,             // maximum number of files
     unsigned long maxFileSize,          // maximum size of each file
-    const char *prefix)                 // prefix to use
+    const char *prefix,                 // prefix to use
+    int reuseExistingFiles,             // reuse existing files?
+    int rotateFiles,                    // rotate files?
+    ExceptionInfo *exceptionInfo)       // exception info
 {
+    char seqNumTemp[100];
     LoggingState *state;
     char *tmp;
 
     // initialize the logging state
     state = (LoggingState*) malloc(sizeof(LoggingState));
-    if (!state)
+    if (!state) {
+        strcpy(exceptionInfo->message,
+                "Failed to allocate memory for logging state.");
         return NULL;
+    }
     state->fp = fp;
     state->fileOwned = 0;
     state->level = level;
     state->fileName = NULL;
-    state->fileMask = NULL;
+    state->fileNameMask = NULL;
     state->prefix = NULL;
+    state->reuseExistingFiles = reuseExistingFiles;
+    state->rotateFiles = rotateFiles;
     if (maxFiles == 0)
         state->maxFiles = 1;
     else state->maxFiles = maxFiles;
 #ifdef UNDER_CE
-    if (state->maxFiles != 1) {
-        LogMessage(LOG_LEVEL_WARNING,
-                "rotating log files not supported on Windows CE");
-        state->maxFiles = 1;
+    if (state->rotateFiles && state->maxFiles > 1) {
+        strcpy(exceptionInfo->message,
+                "Rotating log files not supported on Windows CE.");
+        LoggingState_Free(state);
+        return NULL;
     }
 #endif
     if (maxFileSize == 0)
         state->maxFileSize = DEFAULT_MAX_FILE_SIZE;
     else state->maxFileSize = maxFileSize;
 
-    // copy the file name
-    state->fileName = malloc(strlen(fileName) + 1);
+    // allocate space for a file name mask
+    state->fileNameMask = malloc(strlen(fileName) + 23);
+    if (!state->fileNameMask) {
+        strcpy(exceptionInfo->message,
+                "Failed to allocate memory for file name mask.");
+        LoggingState_Free(state);
+        return NULL;
+    }
+
+    // build the file name mask
+    // if max files = 1 then use the file name exactly as is
+    strcpy(state->fileNameMask, fileName);
+    if (state->maxFiles > 1) {
+        sprintf(seqNumTemp, "%ld", state->maxFiles);
+        tmp = strrchr(fileName, '.');
+        if (tmp) {
+            sprintf(state->fileNameMask + (tmp - fileName), ".%%.%ldld",
+                    strlen(seqNumTemp));
+            strcat(state->fileNameMask, tmp);
+        } else {
+            sprintf(state->fileNameMask + strlen(fileName), ".%%.%ldld",
+                    strlen(seqNumTemp));
+        }
+    }
+
+    // allocate space for the file name
+    state->fileName = malloc(strlen(fileName) + 23);
     if (!state->fileName) {
+        strcpy(exceptionInfo->message,
+                "Failed to allocate memory for file name.");
         LoggingState_Free(state);
         return NULL;
     }
@@ -687,36 +778,16 @@ static LoggingState* LoggingState_New(
     // copy the prefix
     state->prefix = malloc(strlen(prefix) + 1);
     if (!state->prefix) {
+        strcpy(exceptionInfo->message,
+                "Failed to allocate memory for prefix.");
         LoggingState_Free(state);
         return NULL;
     }
     strcpy(state->prefix, prefix);
 
-    // create a space for generated file names
-    state->fileNameTemp_1 = malloc(strlen(fileName) + 11);
-    state->fileNameTemp_2 = malloc(strlen(fileName) + 11);
-    if (!state->fileNameTemp_1 || !state->fileNameTemp_2) {
-        LoggingState_Free(state);
-        return NULL;
-    }
-
-    // build a mask for the generated file names
-    state->fileMask = malloc(strlen(fileName) + 4);
-    if (!state->fileMask) {
-        LoggingState_Free(state);
-        return NULL;
-    }
-    strcpy(state->fileMask, state->fileName);
-    tmp = strrchr(state->fileName, '.');
-    if (tmp) {
-        strcpy(state->fileMask + (tmp - state->fileName), ".%d");
-        strcat(state->fileMask, tmp);
-    } else {
-        strcat(state->fileMask, ".%d");
-    }
-
     // open the file, if necessary and write any initial messages
-    if (LoggingState_OnCreate(state) < 0) {
+    if (!state->fp && LoggingState_OnCreate(state) < 0) {
+        strcpy(exceptionInfo->message, state->exceptionInfo.message);
         LoggingState_Free(state);
         return NULL;
     }
@@ -735,17 +806,15 @@ static int LoggingState_SetLevel(
 {
     if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
         return -1;
-    if (fputs("switched logging level from ", state->fp) == EOF)
+    if (WriteString(state, "switched logging level from ") < 0)
         return -1;
     if (WriteLevel(state, state->level) < 0)
         return -1;
-    if (fputs(" to ", state->fp) == EOF)
+    if (WriteString(state, " to ") < 0)
         return -1;
     if (WriteLevel(state, newLevel) < 0)
         return -1;
-    if (fputs("\n", state->fp) == EOF)
-        return -1;
-    if (fflush(state->fp) == EOF)
+    if (WriteTrailer(state) < 0)
         return -1;
     state->level = newLevel;
     return 0;
@@ -825,10 +894,32 @@ CX_LOGGING_API int StartLogging(
     unsigned long maxFileSize,          // maximum size of each file
     const char *prefix)                 // prefix to use in logging
 {
+    ExceptionInfo exceptionInfo;
+
+    return StartLoggingEx(fileName, level, maxFiles, maxFileSize, prefix, 1, 1,
+            &exceptionInfo);
+}
+
+
+//-----------------------------------------------------------------------------
+// StartLoggingEx()
+//   Start logging to the specified file.
+//-----------------------------------------------------------------------------
+CX_LOGGING_API int StartLoggingEx(
+    const char *fileName,               // name of file to write to
+    unsigned long level,                // level to use for logging
+    unsigned long maxFiles,             // maximum number of files to have
+    unsigned long maxFileSize,          // maximum size of each file
+    const char *prefix,                 // prefix to use in logging
+    int reuseExistingFiles,             // reuse existing files?
+    int rotateFiles,                    // rotate files?
+    ExceptionInfo* exceptionInfo)       // exception information (OUT)
+{
     LoggingState *loggingState, *origLoggingState;
 
     loggingState = LoggingState_New(NULL, fileName, level, maxFiles,
-            maxFileSize, prefix);
+            maxFileSize, prefix, reuseExistingFiles, rotateFiles,
+            exceptionInfo);
     if (!loggingState)
         return -1;
     ACQUIRE_LOCK(gLoggingStateLock);
@@ -853,7 +944,27 @@ CX_LOGGING_API int StartLoggingForPythonThread(
     unsigned long maxFileSize,          // maximum size of each file
     const char *prefix)                 // prefix to use in logging
 {
+    return StartLoggingForPythonThreadEx(fileName, level, maxFiles,
+            maxFileSize, prefix, 1, 1);
+}
+
+
+//-----------------------------------------------------------------------------
+// StartLoggingForPythonThreadEx()
+//   Start logging to the specified file for the given Python thread. It is
+// assumed at this point that the Python interpreter lock is held.
+//-----------------------------------------------------------------------------
+CX_LOGGING_API int StartLoggingForPythonThreadEx(
+    const char *fileName,               // name of file to write to
+    unsigned long level,                // level to use for logging
+    unsigned long maxFiles,             // maximum number of files to have
+    unsigned long maxFileSize,          // maximum size of each file
+    const char *prefix,                 // prefix to use in logging
+    int reuseExistingFiles,             // reuse existing files?
+    int rotateFiles)                    // rotate files?
+{
     udt_LoggingState *loggingState;
+    ExceptionInfo exceptionInfo;
     int result;
 
     // create a new logging state object
@@ -863,10 +974,11 @@ CX_LOGGING_API int StartLoggingForPythonThread(
         return -1;
     INITIALIZE_LOCK(loggingState->lock);
     loggingState->state = LoggingState_New(NULL, fileName, level, maxFiles,
-            maxFileSize, prefix);
+            maxFileSize, prefix, reuseExistingFiles, rotateFiles,
+            &exceptionInfo);
     if (!loggingState->state) {
         Py_DECREF(loggingState);
-        PyErr_SetFromErrno(PyExc_OSError);
+        PyErr_SetString(PyExc_RuntimeError, exceptionInfo.message);
         return -1;
     }
 
@@ -899,9 +1011,25 @@ CX_LOGGING_API int StartLoggingStderr(
     unsigned long level,                // level to use for logging
     const char *prefix)                 // prefix to use for logging
 {
+    ExceptionInfo exceptionInfo;
+
+    return StartLoggingStderrEx(level, prefix, &exceptionInfo);
+}
+
+
+//-----------------------------------------------------------------------------
+// StartLoggingStderrEx()
+//   Start logging to stderr.
+//-----------------------------------------------------------------------------
+CX_LOGGING_API int StartLoggingStderrEx(
+    unsigned long level,                // level to use for logging
+    const char *prefix,                 // prefix to use for logging
+    ExceptionInfo *exceptionInfo)       // exception info (OUT)
+{
     LoggingState *loggingState, *origLoggingState;
 
-    loggingState = LoggingState_New(stderr, "<stderr>", level, 1, 0, prefix);
+    loggingState = LoggingState_New(stderr, "<stderr>", level, 1, 0, prefix, 1,
+            1, exceptionInfo);
     if (!loggingState)
         return -1;
     ACQUIRE_LOCK(gLoggingStateLock);
@@ -922,9 +1050,25 @@ CX_LOGGING_API int StartLoggingStdout(
     unsigned long level,                // level to use for logging
     const char *prefix)                 // prefix to use for logging
 {
+    ExceptionInfo exceptionInfo;
+
+    return StartLoggingStdoutEx(level, prefix, &exceptionInfo);
+}
+
+
+//-----------------------------------------------------------------------------
+// StartLoggingStdoutEx()
+//   Start logging to stdout.
+//-----------------------------------------------------------------------------
+CX_LOGGING_API int StartLoggingStdoutEx(
+    unsigned long level,                // level to use for logging
+    const char *prefix,                 // prefix to use for logging
+    ExceptionInfo *exceptionInfo)       // exception info (OUT)
+{
     LoggingState *loggingState, *origLoggingState;
 
-    loggingState = LoggingState_New(stdout, "<stdout>", level, 1, 0, prefix);
+    loggingState = LoggingState_New(stdout, "<stdout>", level, 1, 0, prefix, 1,
+            1, exceptionInfo);
     if (!loggingState)
         return -1;
     ACQUIRE_LOCK(gLoggingStateLock);
@@ -1209,7 +1353,7 @@ CX_LOGGING_API int SetLoggingLevel(
 }
 
 
-#if defined WIN32 && !defined UNDER_CE
+#if defined MS_WINDOWS && !defined UNDER_CE
 //-----------------------------------------------------------------------------
 // LogWin32Error()
 //   Log an error message from the Win32 subsystem and return -1.
@@ -1802,20 +1946,36 @@ static PyObject* StartLoggingForPython(
     PyObject *keywordArgs)              // keyword arguments
 {
     unsigned long level, maxFiles, maxFileSize;
+    PyObject *encoding, *reuseObj, *rotateObj;
+    ExceptionInfo exceptionInfo;
     char *fileName, *prefix;
-    PyObject *encoding;
+    int reuse, rotate;
 
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
     encoding = NULL;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsO",
+    reuse = rotate = 1;
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsOOO",
             gStartLoggingWithFileKeywordList, Py_FileSystemDefaultEncoding,
-            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding))
+            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding,
+            &reuseObj, &rotateObj))
         return NULL;
-    if (StartLogging(fileName, level, maxFiles, maxFileSize, prefix) < 0) {
+    if (reuseObj) {
+        reuse = PyObject_IsTrue(reuseObj);
+        if (reuse < 0)
+            return NULL;
+    }
+    if (rotateObj) {
+        rotate = PyObject_IsTrue(rotateObj);
+        if (rotate < 0)
+            return NULL;
+    }
+    if (StartLoggingEx(fileName, level, maxFiles, maxFileSize, prefix,
+            reuse, rotate, &exceptionInfo) < 0) {
         PyMem_Free(fileName);
-        return PyErr_SetFromErrnoWithFilename(PyExc_OSError, fileName);
+        PyErr_SetString(PyExc_RuntimeError, exceptionInfo.message);
+        return NULL;
     }
     PyMem_Free(fileName);
     return SetEncodingHelper(encoding);
@@ -1831,6 +1991,7 @@ static PyObject* StartLoggingStderrForPython(
     PyObject *args,                     // arguments
     PyObject *keywordArgs)              // keyword arguments
 {
+    ExceptionInfo exceptionInfo;
     unsigned long level;
     PyObject *encoding;
     char *prefix;
@@ -1840,7 +2001,10 @@ static PyObject* StartLoggingStderrForPython(
     if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "l|sO",
             gStartLoggingNoFileKeywordList, &level, &prefix, &encoding))
         return NULL;
-    StartLoggingStderr(level, prefix);
+    if (StartLoggingStderrEx(level, prefix, &exceptionInfo) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, exceptionInfo.message);
+        return NULL;
+    }
     return SetEncodingHelper(encoding);
 }
 
@@ -1854,6 +2018,7 @@ static PyObject* StartLoggingStdoutForPython(
     PyObject *args,                     // arguments
     PyObject *keywordArgs)              // keyword arguments
 {
+    ExceptionInfo exceptionInfo;
     unsigned long level;
     PyObject *encoding;
     char *prefix;
@@ -1863,7 +2028,10 @@ static PyObject* StartLoggingStdoutForPython(
     if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "l|sO",
             gStartLoggingNoFileKeywordList, &level, &prefix, &encoding))
         return NULL;
-    StartLoggingStdout(level, prefix);
+    if (StartLoggingStdoutEx(level, prefix, &exceptionInfo) < 0) {
+        PyErr_SetString(PyExc_RuntimeError, exceptionInfo.message);
+        return NULL;
+    }
     return SetEncodingHelper(encoding);
 }
 
@@ -1878,19 +2046,32 @@ static PyObject *StartLoggingForThreadForPython(
     PyObject *keywordArgs)              // keyword arguments
 {
     unsigned long level, maxFiles, maxFileSize;
+    PyObject *encoding, *reuseObj, *rotateObj;
     char *fileName, *prefix;
-    PyObject *encoding;
+    int reuse, rotate;
 
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
     encoding = NULL;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsO",
+    reuse = rotate = 1;
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsOOO",
             gStartLoggingWithFileKeywordList, Py_FileSystemDefaultEncoding,
-            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding))
+            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding,
+            &reuseObj, &rotateObj))
         return NULL;
-    if (StartLoggingForPythonThread(fileName, level, maxFiles, maxFileSize,
-            prefix) < 0) {
+    if (reuseObj) {
+        reuse = PyObject_IsTrue(reuseObj);
+        if (reuse < 0)
+            return NULL;
+    }
+    if (rotateObj) {
+        rotate = PyObject_IsTrue(rotateObj);
+        if (rotate < 0)
+            return NULL;
+    }
+    if (StartLoggingForPythonThreadEx(fileName, level, maxFiles, maxFileSize,
+            prefix, reuse, rotate) < 0) {
         PyMem_Free(fileName);
         return NULL;
     }
@@ -2413,7 +2594,7 @@ void initcx_Logging(void)
 }
 #endif
 
-#ifdef WIN32
+#ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
 // StartLoggingW()
 //   Start logging to the specified file.
@@ -2424,6 +2605,27 @@ CX_LOGGING_API int StartLoggingW(
     unsigned long maxFiles,             // maximum number of files to have
     unsigned long maxFileSize,          // maximum size of each file
     const OLECHAR *prefix)              // prefix to use in logging
+{
+    ExceptionInfo exceptionInfo;
+
+    return StartLoggingExW(fileName, level, maxFiles, maxFileSize,
+            prefix, 1, 1, &exceptionInfo);
+}
+
+
+//-----------------------------------------------------------------------------
+// StartLoggingExW()
+//   Start logging to the specified file.
+//-----------------------------------------------------------------------------
+CX_LOGGING_API int StartLoggingExW(
+    const OLECHAR *fileName,            // name of file to write to
+    unsigned long level,                // level to use for logging
+    unsigned long maxFiles,             // maximum number of files to have
+    unsigned long maxFileSize,          // maximum size of each file
+    const OLECHAR *prefix,              // prefix to use in logging
+    int reuseExistingFiles,             // reuse existing files?
+    int rotateFiles,                    // rotate files?
+    ExceptionInfo *exceptionInfo)       // exception information (OUT)
 {
     char *tempFileName, *tempPrefix;
     unsigned size;
@@ -2440,8 +2642,8 @@ CX_LOGGING_API int StartLoggingW(
         return -1;
     wcstombs(tempPrefix, prefix, size);
 
-    return StartLogging(tempFileName, level, maxFiles, maxFileSize,
-            tempPrefix);
+    return StartLoggingEx(tempFileName, level, maxFiles, maxFileSize,
+            tempPrefix, reuseExistingFiles, rotateFiles, exceptionInfo);
 }
 
 
