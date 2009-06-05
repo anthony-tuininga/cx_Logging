@@ -21,7 +21,7 @@
 #ifdef MS_WINDOWS
     #include <windows.h>
     #define LOCK_TYPE CRITICAL_SECTION
-    #ifdef MS_WINDOWS
+    #ifdef __WIN32__
         #ifdef CX_LOGGING_CORE
             #define CX_LOGGING_API __declspec(dllexport) __stdcall
         #else
