@@ -17,6 +17,11 @@ Starting Logging
    Start logging to the specified file at the specified level.
 
 
+.. cfunction:: int StartLoggingEx(const char* fileName, unsigned long level, unsigned long maxfiles, unsigned long maxfilesize, const char* prefix, int reuseExistingFiles, int rotateFiles, ExceptionInfo* exceptionInfo)
+
+   Start logging to the specified file at the specified level.
+
+
 .. cfunction:: int StartLoggingFromEnvironment()
 
    Start logging by reading the environment variables "CX_LOGGING_FILE_NAME",
@@ -30,12 +35,28 @@ Starting Logging
    currently active Python thread.
 
 
+.. cfunction:: int StartLoggingForPythonThreadEx(const char* filename, unsigned long level, unsigned long maxfiles, unsigned long maxfilesize, const char* prefix, int reuseExistingFiles, int rotateFiles)
+
+   Start logging to the specified file at the specified level but only for the
+   currently active Python thread.
+
+
 .. cfunction:: int StartLoggingStderr(unsigned long level, const char* prefix)
 
    Start logging to stderr at the specified level.
 
 
+.. cfunction:: int StartLoggingStderrEx(unsigned long level, const char* prefix, ExceptionInfo* exceptionInfo)
+
+   Start logging to stderr at the specified level.
+
+
 .. cfunction:: int StartLoggingStdout(unsigned long level, const char* prefix)
+
+   Start logging to stdout at the given level.
+
+
+.. cfunction:: int StartLoggingStdoutEx(unsigned long level, const char* prefix, ExcepitonInfo* exceptionInfo)
 
    Start logging to stdout at the given level.
 

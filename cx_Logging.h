@@ -4,6 +4,7 @@
 //-----------------------------------------------------------------------------
 
 #include <Python.h>
+#include <osdefs.h>
 
 // define Py_TYPE for versions before Python 2.6
 #ifndef Py_TYPE
@@ -20,7 +21,7 @@
 #ifdef MS_WINDOWS
     #include <windows.h>
     #define LOCK_TYPE CRITICAL_SECTION
-    #ifdef __WIN32__
+    #ifdef MS_WINDOWS
         #ifdef CX_LOGGING_CORE
             #define CX_LOGGING_API __declspec(dllexport) __stdcall
         #else
@@ -40,18 +41,26 @@
     #define CX_LOGGING_API
 #endif
 
+// define structure for managing exception information
+typedef struct {
+    char message[MAXPATHLEN + 1024];
+} ExceptionInfo;
+
+
 // define structure for managing logging state
 typedef struct {
     FILE *fp;
     char *fileName;
-    char *fileMask;
-    char *fileNameTemp_1;
-    char *fileNameTemp_2;
+    char *fileNameMask;
     char *prefix;
     unsigned long level;
-    int fileOwned;
     unsigned long maxFiles;
     unsigned long maxFileSize;
+    unsigned long seqNum;
+    int reuseExistingFiles;
+    int rotateFiles;
+    int fileOwned;
+    ExceptionInfo exceptionInfo;
 } LoggingState;
 
 
@@ -79,11 +88,19 @@ typedef struct {
 
 // declarations of methods exported
 CX_LOGGING_API int StartLogging(const char*, unsigned long, unsigned long,
-                unsigned long, const char *);
+        unsigned long, const char *);
+CX_LOGGING_API int StartLoggingEx(const char*, unsigned long, unsigned long,
+        unsigned long, const char *, int, int, ExceptionInfo*);
 CX_LOGGING_API int StartLoggingForPythonThread(const char*, unsigned long,
-                unsigned long, unsigned long, const char *);
+        unsigned long, unsigned long, const char *);
+CX_LOGGING_API int StartLoggingForPythonThreadEx(const char*, unsigned long,
+        unsigned long, unsigned long, const char *, int, int);
 CX_LOGGING_API int StartLoggingStderr(unsigned long, const char *);
+CX_LOGGING_API int StartLoggingStderrEx(unsigned long, const char *,
+        ExceptionInfo*);
 CX_LOGGING_API int StartLoggingStdout(unsigned long, const char *);
+CX_LOGGING_API int StartLoggingStdoutEx(unsigned long, const char *,
+        ExceptionInfo*);
 CX_LOGGING_API int StartLoggingFromEnvironment(void);
 CX_LOGGING_API void StopLogging(void);
 CX_LOGGING_API void StopLoggingForPythonThread(void);
@@ -111,14 +128,16 @@ CX_LOGGING_API udt_LoggingState* GetLoggingState(void);
 CX_LOGGING_API int SetLoggingState(udt_LoggingState*);
 CX_LOGGING_API int IsLoggingStarted(void);
 
-#if defined WIN32 && !defined UNDER_CE
+#if defined MS_WINDOWS && !defined UNDER_CE
 CX_LOGGING_API int LogWin32Error(DWORD, const char*);
 CX_LOGGING_API int LogGUID(unsigned long, const char*, const IID*);
 #endif
 
-#ifdef WIN32
+#ifdef MS_WINDOWS
 CX_LOGGING_API int StartLoggingW(const OLECHAR*, unsigned long, unsigned long,
-                unsigned long, const OLECHAR*);
+        unsigned long, const OLECHAR*);
+CX_LOGGING_API int StartLoggingExW(const OLECHAR*, unsigned long, unsigned long,
+        unsigned long, const OLECHAR*, int, int, ExceptionInfo*);
 CX_LOGGING_API int LogMessageW(unsigned long, const OLECHAR*);
 CX_LOGGING_API int LogDebugW(const OLECHAR*);
 CX_LOGGING_API int LogInfoW(const OLECHAR*);

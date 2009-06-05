@@ -10,12 +10,12 @@ Module Interface
 Starting Logging
 ----------------
 
-.. function:: StartLogging(fileName, level, [maxFiles, maxFileSize, prefix])
+.. function:: StartLogging(fileName, level, maxFiles = 1, maxFileSize = 1048576, prefix = "%t", reuse = True, rotate = True)
 
    Start logging to the specified file at the specified level.
 
 
-.. function:: StartLoggingForThread(fileName, level, [maxFiles, maxFileSize, prefix])
+.. function:: StartLoggingForThread(fileName, level, maxFiles = 1, maxFileSize = 1048576, prefix = "%t", reuse = True, rotate = True)
 
    Start logging to the specified file at the specified level, but only for the
    current Python thread.
@@ -120,6 +120,11 @@ Logging Exceptions
 Logging State
 -------------
 
+.. function:: GetEncoding()
+
+   Return the encoding currently in place for logging Unicode objects.
+
+
 .. function:: GetLoggingFile()
 
    Return the file object to which logging is currently taking place.
@@ -140,12 +145,17 @@ Logging State
    Return the current logging state.
 
 
-.. function:: SetLoggingLevel()
+.. function:: SetEncoding(encoding)
+
+   Set the encoding to use for logging Unicode objects.
+
+
+.. function:: SetLoggingLevel(level)
 
    Set the current logging level.
 
 
-.. function:: SetLoggingState()
+.. function:: SetLoggingState(state)
 
    Set the current logging state.
 
