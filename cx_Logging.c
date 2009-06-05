@@ -144,7 +144,7 @@ static int LoggingState_OpenFileForWriting(
         fclose(state->fp);
         state->fp = NULL;
         sprintf(state->exceptionInfo.message,
-                "Failed to duplicate handle on file %s: Windows error %d",
+                "Failed to duplicate handle on file %s: Windows error %ld",
                 state->fileName, GetLastError());
         return -1;
     }
@@ -667,7 +667,6 @@ static void LoggingState_InitializeSeqNum(
 static int LoggingState_OnCreate(
     LoggingState *state)                // logging state just created
 {
-
     // open the file
 #ifndef UNDER_CE
     if (state->rotateFiles && state->maxFiles > 1)
@@ -687,6 +686,7 @@ static int LoggingState_OnCreate(
     if (WriteTrailer(state) < 0)
         return -1;
 
+    // open the file
     return 0;
 }
 
@@ -756,11 +756,11 @@ static LoggingState* LoggingState_New(
         sprintf(seqNumTemp, "%ld", state->maxFiles);
         tmp = strrchr(fileName, '.');
         if (tmp) {
-            sprintf(state->fileNameMask + (tmp - fileName), ".%%.%ldld",
+            sprintf(state->fileNameMask + (tmp - fileName), ".%%.%dld",
                     strlen(seqNumTemp));
             strcat(state->fileNameMask, tmp);
         } else {
-            sprintf(state->fileNameMask + strlen(fileName), ".%%.%ldld",
+            sprintf(state->fileNameMask + strlen(fileName), ".%%.%dld",
                     strlen(seqNumTemp));
         }
     }
@@ -1954,6 +1954,7 @@ static PyObject* StartLoggingForPython(
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
+    reuseObj = rotateObj = NULL;
     encoding = NULL;
     reuse = rotate = 1;
     if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsOOO",
@@ -2053,6 +2054,7 @@ static PyObject *StartLoggingForThreadForPython(
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
+    reuseObj = rotateObj = NULL;
     encoding = NULL;
     reuse = rotate = 1;
     if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsOOO",
