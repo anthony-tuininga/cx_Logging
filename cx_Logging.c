@@ -756,12 +756,12 @@ static LoggingState* LoggingState_New(
         sprintf(seqNumTemp, "%ld", state->maxFiles);
         tmp = strrchr(fileName, '.');
         if (tmp) {
-            sprintf(state->fileNameMask + (tmp - fileName), ".%%.%dld",
-                    strlen(seqNumTemp));
+            sprintf(state->fileNameMask + (tmp - fileName), ".%%.%ldld",
+                    (unsigned long) strlen(seqNumTemp));
             strcat(state->fileNameMask, tmp);
         } else {
-            sprintf(state->fileNameMask + strlen(fileName), ".%%.%dld",
-                    strlen(seqNumTemp));
+            sprintf(state->fileNameMask + strlen(fileName), ".%%.%ldld",
+                    (unsigned long) strlen(seqNumTemp));
         }
     }
 
