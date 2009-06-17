@@ -12,6 +12,12 @@ C Interface
 Starting Logging
 ----------------
 
+.. note::
+   
+   See the :ref:`overview` for more information on the parameters specified
+   here.
+
+
 .. cfunction:: int StartLogging(const char* fileName, unsigned long level, unsigned long maxfiles, unsigned long maxfilesize, const char* prefix)
 
    Start logging to the specified file at the specified level.
