@@ -10,6 +10,12 @@ Module Interface
 Starting Logging
 ----------------
 
+.. note::
+   
+   See the :ref:`overview` for more information on the parameters specified
+   here.
+
+
 .. function:: StartLogging(fileName, level, maxFiles = 1, maxFileSize = 1048576, prefix = "%t", reuse = True, rotate = True)
 
    Start logging to the specified file at the specified level.
@@ -21,12 +27,12 @@ Starting Logging
    current Python thread.
 
 
-.. function:: StartLoggingStderr(level, [prefix])
+.. function:: StartLoggingStderr(level, prefix = "%t")
 
    Start logging to stderr at the specified level.
 
 
-.. function:: StartLoggingStdout(level, [prefix])
+.. function:: StartLoggingStdout(level, prefix = "%t")
 
    Start logging to stdout at the specified level.
 

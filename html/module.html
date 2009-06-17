@@ -21,7 +21,7 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="top" title="cx_Logging v2.0 documentation" href="index.html" />
     <link rel="next" title="C Interface" href="cinterface.html" />
-    <link rel="prev" title="cx_Logging" href="index.html" /> 
+    <link rel="prev" title="Overview" href="overview.html" /> 
   </head>
   <body>
     <div class="related">
@@ -37,7 +37,7 @@
           <a href="cinterface.html" title="C Interface"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="cx_Logging"
+          <a href="overview.html" title="Overview"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">cx_Logging v2.0 documentation</a> &raquo;</li> 
       </ul>
@@ -52,6 +52,11 @@
 <span id="module"></span><span id="module-cx_Logging"></span><h1>Module Interface<a class="headerlink" href="#module-interface" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="starting-logging">
 <h2>Starting Logging<a class="headerlink" href="#starting-logging" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">See the <a class="reference external" href="overview.html#overview"><em>Overview</em></a> for more information on the parameters specified
+here.</p>
+</div>
 <dl class="function">
 <dt id="cx_Logging.StartLogging">
 <!--[cx_Logging.StartLogging]--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLogging</tt><big>(</big><em>fileName</em>, <em>level</em>, <em>maxFiles = 1</em>, <em>maxFileSize = 1048576</em>, <em>prefix = &quot;%t&quot;</em>, <em>reuse = True</em>, <em>rotate = True</em><big>)</big><a class="headerlink" href="#cx_Logging.StartLogging" title="Permalink to this definition">¶</a></dt>
@@ -65,12 +70,12 @@ current Python thread.</dd></dl>
 
 <dl class="function">
 <dt id="cx_Logging.StartLoggingStderr">
-<!--[cx_Logging.StartLoggingStderr]--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLoggingStderr</tt><big>(</big><em>level</em><span class="optional">[</span>, <em>prefix</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.StartLoggingStderr" title="Permalink to this definition">¶</a></dt>
+<!--[cx_Logging.StartLoggingStderr]--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLoggingStderr</tt><big>(</big><em>level</em>, <em>prefix = &quot;%t&quot;</em><big>)</big><a class="headerlink" href="#cx_Logging.StartLoggingStderr" title="Permalink to this definition">¶</a></dt>
 <dd>Start logging to stderr at the specified level.</dd></dl>
 
 <dl class="function">
 <dt id="cx_Logging.StartLoggingStdout">
-<!--[cx_Logging.StartLoggingStdout]--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLoggingStdout</tt><big>(</big><em>level</em><span class="optional">[</span>, <em>prefix</em><span class="optional">]</span><big>)</big><a class="headerlink" href="#cx_Logging.StartLoggingStdout" title="Permalink to this definition">¶</a></dt>
+<!--[cx_Logging.StartLoggingStdout]--><tt class="descclassname">cx_Logging.</tt><tt class="descname">StartLoggingStdout</tt><big>(</big><em>level</em>, <em>prefix = &quot;%t&quot;</em><big>)</big><a class="headerlink" href="#cx_Logging.StartLoggingStdout" title="Permalink to this definition">¶</a></dt>
 <dd>Start logging to stdout at the specified level.</dd></dl>
 
 </div>
@@ -293,7 +298,7 @@ messages.</dd></dl>
 </ul>
 
             <h4>Previous topic</h4>
-            <p class="topless"><a href="index.html" title="previous chapter">cx_Logging</a></p>
+            <p class="topless"><a href="overview.html" title="previous chapter">Overview</a></p>
             <h4>Next topic</h4>
             <p class="topless"><a href="cinterface.html" title="next chapter">C Interface</a></p>
           <h3>Quick search</h3>
@@ -319,14 +324,14 @@ messages.</dd></dl>
           <a href="cinterface.html" title="C Interface"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="cx_Logging"
+          <a href="overview.html" title="Overview"
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">cx_Logging v2.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
       &copy; Copyright 2008, Anthony Tuininga.
-      Last updated on Jun 12, 2009.
+      Last updated on Jun 16, 2009.
       Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.1.
     </div>
   </body>

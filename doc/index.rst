@@ -44,6 +44,7 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   overview
    module
    cinterface
    license
