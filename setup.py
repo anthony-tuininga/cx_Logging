@@ -101,14 +101,22 @@ defineMacros = [
         ("BUILD_VERSION", BUILD_VERSION)
 ]
 
-# define the list of files to be included as documentation
+# define the list of files to be included as documentation for Windows
 dataFiles = None
 if sys.platform in ("win32", "cygwin"):
     baseName = "cx_Logging-doc"
-    dataFiles = [ (baseName, [ "LICENSE.txt", "HISTORY.txt", "README.txt" ]) ]
-    htmlFiles = [os.path.join("html", n) for n in os.listdir("html") \
-            if not n.startswith(".")]
-    dataFiles.append( ("%s/%s" % (baseName, "html"), htmlFiles) )
+    dataFiles = [(baseName, [ "LICENSE.TXT", "README.TXT", "HISTORY.txt"])]
+    for dir in ("html", "html/_static", "test"):
+        files = []
+        fullDirName = "%s/%s" % (baseName, dir)
+        for name in os.listdir(dir):
+            if name.startswith("."):
+                continue
+            fullName = "%s/%s" % (dir, name)
+            if os.path.isdir(fullName):
+                continue
+            files.append(fullName)
+        dataFiles.append((fullDirName, files))
 docFiles = "LICENSE.txt HISTORY.txt README.txt html"
 options = dict(bdist_rpm = dict(doc_files = docFiles))
 
