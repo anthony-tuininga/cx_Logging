@@ -117,7 +117,7 @@ if sys.platform in ("win32", "cygwin"):
                 continue
             files.append(fullName)
         dataFiles.append((fullDirName, files))
-docFiles = "LICENSE.txt HISTORY.txt README.txt html"
+docFiles = "LICENSE.txt HISTORY.txt README.txt html test"
 options = dict(bdist_rpm = dict(doc_files = docFiles))
 
 # define the classifiers for the project
