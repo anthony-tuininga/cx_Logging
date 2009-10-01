@@ -522,8 +522,11 @@ static int GetEncodedStringForPython(
                 encoding = PyBytes_AS_STRING(encodingObj);
         }
         *encodedValue = PyUnicode_AsEncodedString(value, encoding, NULL);
-        if (!encodedValue)
-            return -1;
+        if (!*encodedValue) {
+            *encodedValue = PyString_FromString("<< CANNOT ENCODE >>");
+            if (!*encodedValue)
+                return -1;
+        }
     } else if (PyBytes_Check(value)) {
         Py_INCREF(value);
         *encodedValue = value;
