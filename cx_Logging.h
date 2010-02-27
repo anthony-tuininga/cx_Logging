@@ -110,6 +110,7 @@ CX_LOGGING_API int LogMessageVaList(unsigned long, const char*, va_list);
 CX_LOGGING_API int LogMessageForPythonV(unsigned long, const char*, ...);
 CX_LOGGING_API int LogMessageForPythonVaList(unsigned long, const char*,
         va_list);
+CX_LOGGING_API int WriteMessageForPython(unsigned long, PyObject*);
 CX_LOGGING_API int LogDebug(const char*);
 CX_LOGGING_API int LogInfo(const char*);
 CX_LOGGING_API int LogWarning(const char*);
