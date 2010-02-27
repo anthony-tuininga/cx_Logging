@@ -570,7 +570,7 @@ static PyObject* SetEncodingHelper(
 // WriteMessageForPython()
 //   Write a message for Python given the known logging state.
 //-----------------------------------------------------------------------------
-static int WriteMessageForPython(
+CX_LOGGING_API int WriteMessageForPython(
     unsigned long level,                // level at which message is written
     PyObject *messageObj)               // message object to write
 {
