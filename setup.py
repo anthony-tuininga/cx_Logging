@@ -41,9 +41,9 @@ class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
 class build_ext(distutils.command.build_ext.build_ext):
-    global distutils
-    global os
-    global sys
+    import distutils
+    import os
+    import sys
     if sys.platform == "win32":
         user_options = distutils.command.build_ext.build_ext.user_options + [
                 ('build-implib=', None,
@@ -51,6 +51,8 @@ class build_ext(distutils.command.build_ext.build_ext):
         ]
 
     def build_extension(self, ext):
+        import distutils.command.build_ext
+        import sys
         extraLinkArgs = ext.extra_link_args = []
         if sys.platform == "win32":
             self.mkpath(self.build_implib)
@@ -67,14 +69,18 @@ class build_ext(distutils.command.build_ext.build_ext):
         distutils.command.build_ext.build_ext.build_extension(self, ext)
 
     def finalize_options(self):
+        import distutils.command.build_ext
         distutils.command.build_ext.build_ext.finalize_options(self)
+        import sys
         if sys.platform == "win32" and self.build_implib is None:
             dir = "implib.%s-%s" % \
                     (distutils.util.get_platform(), sys.version[:3])
             self.build_implib = os.path.join("build", dir)
 
     def initialize_options(self):
+        import distutils.command.build_ext
         distutils.command.build_ext.build_ext.initialize_options(self)
+        import sys
         if sys.platform == "win32":
             self.build_implib = None
 
