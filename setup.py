@@ -52,6 +52,7 @@ class build_ext(distutils.command.build_ext.build_ext):
 
     def build_extension(self, ext):
         import distutils.command.build_ext
+        import os
         import sys
         extraLinkArgs = ext.extra_link_args = []
         if sys.platform == "win32":
@@ -71,6 +72,7 @@ class build_ext(distutils.command.build_ext.build_ext):
     def finalize_options(self):
         import distutils.command.build_ext
         distutils.command.build_ext.build_ext.finalize_options(self)
+        import os
         import sys
         if sys.platform == "win32" and self.build_implib is None:
             dir = "implib.%s-%s" % \
