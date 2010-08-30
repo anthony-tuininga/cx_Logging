@@ -57,12 +57,17 @@ class build_ext(distutils.command.build_ext.build_ext):
         extraLinkArgs = ext.extra_link_args = []
         if sys.platform == "win32":
             self.mkpath(self.build_implib)
-            self.importLibraryName = os.path.join(self.build_implib,
-                    "lib%s.a" % ext.name)
-            extraLinkArgs.append("-Wl,--add-stdcall-alias")
-            extraLinkArgs.append("-Wl,--enable-stdcall-fixup")
-            extraLinkArgs.append("-Wl,--out-implib=%s" % \
-                    self.importLibraryName)
+            if self.compiler.compiler_type == "msvc":
+                self.importLibraryName = os.path.join(self.build_implib,
+                        "%s.lib" % ext.name)
+                extraLinkArgs.append("/IMPLIB:%s" % self.importLibraryName)
+            else:
+                self.importLibraryName = os.path.join(self.build_implib,
+                        "lib%s.a" % ext.name)
+                extraLinkArgs.append("-Wl,--add-stdcall-alias")
+                extraLinkArgs.append("-Wl,--enable-stdcall-fixup")
+                extraLinkArgs.append("-Wl,--out-implib=%s" % \
+                        self.importLibraryName)
             ext.libraries = ["ole32"]
         else:
             fileName = self.get_ext_filename(ext.name)
