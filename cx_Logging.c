@@ -570,7 +570,7 @@ static PyObject* SetEncodingHelper(
 // WriteMessageForPython()
 //   Write a message for Python given the known logging state.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int WriteMessageForPython(
+CX_LOGGING_API(int) WriteMessageForPython(
     unsigned long level,                // level at which message is written
     PyObject *messageObj)               // message object to write
 {
@@ -887,7 +887,7 @@ static PyTypeObject gPythonLoggingStateType = {
 // StartLogging()
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLogging(
+CX_LOGGING_API(int) StartLogging(
     const char *fileName,               // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
@@ -905,7 +905,7 @@ CX_LOGGING_API int StartLogging(
 // StartLoggingEx()
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingEx(
+CX_LOGGING_API(int) StartLoggingEx(
     const char *fileName,               // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
@@ -937,7 +937,7 @@ CX_LOGGING_API int StartLoggingEx(
 //   Start logging to the specified file for the given Python thread. It is
 // assumed at this point that the Python interpreter lock is held.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingForPythonThread(
+CX_LOGGING_API(int) StartLoggingForPythonThread(
     const char *fileName,               // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
@@ -954,7 +954,7 @@ CX_LOGGING_API int StartLoggingForPythonThread(
 //   Start logging to the specified file for the given Python thread. It is
 // assumed at this point that the Python interpreter lock is held.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingForPythonThreadEx(
+CX_LOGGING_API(int) StartLoggingForPythonThreadEx(
     const char *fileName,               // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
@@ -1007,7 +1007,7 @@ CX_LOGGING_API int StartLoggingForPythonThreadEx(
 // StartLoggingStderr()
 //   Start logging to stderr.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingStderr(
+CX_LOGGING_API(int) StartLoggingStderr(
     unsigned long level,                // level to use for logging
     const char *prefix)                 // prefix to use for logging
 {
@@ -1021,7 +1021,7 @@ CX_LOGGING_API int StartLoggingStderr(
 // StartLoggingStderrEx()
 //   Start logging to stderr.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingStderrEx(
+CX_LOGGING_API(int) StartLoggingStderrEx(
     unsigned long level,                // level to use for logging
     const char *prefix,                 // prefix to use for logging
     ExceptionInfo *exceptionInfo)       // exception info (OUT)
@@ -1046,7 +1046,7 @@ CX_LOGGING_API int StartLoggingStderrEx(
 // StartLoggingStdout()
 //   Start logging to stdout.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingStdout(
+CX_LOGGING_API(int) StartLoggingStdout(
     unsigned long level,                // level to use for logging
     const char *prefix)                 // prefix to use for logging
 {
@@ -1060,7 +1060,7 @@ CX_LOGGING_API int StartLoggingStdout(
 // StartLoggingStdoutEx()
 //   Start logging to stdout.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingStdoutEx(
+CX_LOGGING_API(int) StartLoggingStdoutEx(
     unsigned long level,                // level to use for logging
     const char *prefix,                 // prefix to use for logging
     ExceptionInfo *exceptionInfo)       // exception info (OUT)
@@ -1085,7 +1085,7 @@ CX_LOGGING_API int StartLoggingStdoutEx(
 // StartLoggingFromEnvironment()
 //   Start logging using the parameters specified in the environment.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingFromEnvironment(void)
+CX_LOGGING_API(int) StartLoggingFromEnvironment(void)
 {
     char *fileName, *valueAsString, *temp, *prefix;
     unsigned long level, maxFiles, maxFileSize;
@@ -1126,7 +1126,7 @@ CX_LOGGING_API int StartLoggingFromEnvironment(void)
 // StopLogging()
 //   Stop logging to the specified file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API void StopLogging(void)
+CX_LOGGING_API(void) StopLogging(void)
 {
     LoggingState *loggingState;
 
@@ -1143,7 +1143,7 @@ CX_LOGGING_API void StopLogging(void)
 // StopLoggingForPythonThread()
 //   Stop logging to a different file for the current Python thread.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API void StopLoggingForPythonThread(void)
+CX_LOGGING_API(void) StopLoggingForPythonThread(void)
 {
     PyObject *dict;
 
@@ -1161,7 +1161,7 @@ CX_LOGGING_API void StopLoggingForPythonThread(void)
 //   Log a message to the log file with a variable number of argument specified
 // as a va_list.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogMessageVaList(
+CX_LOGGING_API(int) LogMessageVaList(
     unsigned long level,                // level to check for
     const char *format,                 // format of message to log
     va_list arguments)                  // argument list
@@ -1184,7 +1184,7 @@ CX_LOGGING_API int LogMessageVaList(
 // LogMessageV()
 //   Log a message to the log file with a variable number of arguments.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogMessageV(
+CX_LOGGING_API(int) LogMessageV(
     unsigned long level,                // level at which to log
     const char *format,                 // format of message to log
     ...)                                // arguments required for format
@@ -1205,7 +1205,7 @@ CX_LOGGING_API int LogMessageV(
 // Python thread state is examined first to determine if special logging for
 // this thread is desired; if not, the normal LogMessageV() is invoked.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogMessageForPythonV(
+CX_LOGGING_API(int) LogMessageForPythonV(
     unsigned long level,                // level at which to log
     const char *format,                 // format of message to log
     ...)                                // arguments required for format
@@ -1236,7 +1236,7 @@ CX_LOGGING_API int LogMessageForPythonV(
 // LogMessage()
 //   Log a message to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogMessage(
+CX_LOGGING_API(int) LogMessage(
     unsigned long level,                // level at which to log
     const char *message)                // message to log
 {
@@ -1257,7 +1257,7 @@ CX_LOGGING_API int LogMessage(
 // LogDebug()
 //   Log a message at level LOG_LEVEL_DEBUG to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogDebug(
+CX_LOGGING_API(int) LogDebug(
     const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_DEBUG, message);
@@ -1268,7 +1268,7 @@ CX_LOGGING_API int LogDebug(
 // LogInfo()
 //   Log a message at level LOG_LEVEL_INFO to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogInfo(
+CX_LOGGING_API(int) LogInfo(
     const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_INFO, message);
@@ -1279,7 +1279,7 @@ CX_LOGGING_API int LogInfo(
 // LogWarning()
 //   Log a message at level LOG_LEVEL_WARNING to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogWarning(
+CX_LOGGING_API(int) LogWarning(
     const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_WARNING, message);
@@ -1290,7 +1290,7 @@ CX_LOGGING_API int LogWarning(
 // LogError()
 //   Log a message at level LOG_LEVEL_ERROR to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogError(
+CX_LOGGING_API(int) LogError(
     const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_ERROR, message);
@@ -1301,7 +1301,7 @@ CX_LOGGING_API int LogError(
 // LogCritical()
 //   Log a message at level LOG_LEVEL_CRITICAL to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogCritical(
+CX_LOGGING_API(int) LogCritical(
     const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_CRITICAL, message);
@@ -1312,7 +1312,7 @@ CX_LOGGING_API int LogCritical(
 // LogTrace()
 //   Log a message regardless of the current logging level to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogTrace(
+CX_LOGGING_API(int) LogTrace(
     const char *message)                // message to log
 {
     return LogMessage(LOG_LEVEL_NONE, message);
@@ -1323,7 +1323,7 @@ CX_LOGGING_API int LogTrace(
 // GetLoggingLevel()
 //   Return the current logging level.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API unsigned long GetLoggingLevel(void)
+CX_LOGGING_API(unsigned long) GetLoggingLevel(void)
 {
     unsigned long level = LOG_LEVEL_NONE;
 
@@ -1339,7 +1339,7 @@ CX_LOGGING_API unsigned long GetLoggingLevel(void)
 // SetLoggingLevel()
 //   Set the current logging level.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int SetLoggingLevel(
+CX_LOGGING_API(int) SetLoggingLevel(
     unsigned long newLevel)             // new level to use
 {
     int result = 0;
@@ -1358,7 +1358,7 @@ CX_LOGGING_API int SetLoggingLevel(
 // LogWin32Error()
 //   Log an error message from the Win32 subsystem and return -1.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogWin32Error(
+CX_LOGGING_API(int) LogWin32Error(
     DWORD errorCode,                    // Win32 error code to log
     const char *message)                // message to log
 {
@@ -1385,7 +1385,7 @@ CX_LOGGING_API int LogWin32Error(
 // LogGUID()
 //   Log a GUID in human readable format to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogGUID(
+CX_LOGGING_API(int) LogGUID(
     unsigned long level,                // level at which to log
     const char *prefix,                 // prefix to print in front of it
     const IID *iid)                     // interface to print
@@ -1420,7 +1420,7 @@ CX_LOGGING_API int LogGUID(
 // LogPythonObject()
 //   Log the string representation of the Python object to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogPythonObject(
+CX_LOGGING_API(int) LogPythonObject(
     unsigned long logLevel,             // log level
     const char *prefix,                 // prefix for message
     const char *name,                   // name to display
@@ -1509,7 +1509,7 @@ static void SetArgumentValue(
 // LogPythonExceptionWithTraceback()
 //   Log a Python exception with traceback, if possible.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogPythonExceptionWithTraceback(
+CX_LOGGING_API(int) LogPythonExceptionWithTraceback(
     const char *message,                // message to log
     PyObject *type,                     // exception type
     PyObject *value,                    // exception value
@@ -1563,7 +1563,7 @@ CX_LOGGING_API int LogPythonExceptionWithTraceback(
 //   Log a Python exception, first attempting to do so with traceback and if
 // that fails then without.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogPythonException(
+CX_LOGGING_API(int) LogPythonException(
     const char *message)                // message to display
 {
     PyObject *type, *value, *traceback;
@@ -1707,7 +1707,7 @@ static int LogListOfStringsFromErrorObj(
 // LogConfiguredException()
 //   Log a configured Python exception.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogConfiguredException(
+CX_LOGGING_API(int) LogConfiguredException(
     PyObject *errorObj,                 // object to log
     const char *message)                // message to prepend
 {
@@ -1744,7 +1744,7 @@ CX_LOGGING_API int LogConfiguredException(
 //   Get the current logging state for Python so that it can be retained
 // across thread boundaries (such as for COM servers).
 //-----------------------------------------------------------------------------
-CX_LOGGING_API udt_LoggingState* GetLoggingState(void)
+CX_LOGGING_API(udt_LoggingState*) GetLoggingState(void)
 {
     PyObject *dict;
 
@@ -1761,7 +1761,7 @@ CX_LOGGING_API udt_LoggingState* GetLoggingState(void)
 // the complement to GetLoggingState() so that logging state can be retained
 // across thread boundaries.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int SetLoggingState(
+CX_LOGGING_API(int) SetLoggingState(
     udt_LoggingState *loggingState)     // logging state to set
 {
     PyObject *dict;
@@ -1783,7 +1783,7 @@ CX_LOGGING_API int SetLoggingState(
 // IsLoggingStarted()
 //   Return a boolean indicating if logging is currently started.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int IsLoggingStarted(void)
+CX_LOGGING_API(int) IsLoggingStarted(void)
 {
     return (gLoggingState != NULL);
 }
@@ -2603,7 +2603,7 @@ void initcx_Logging(void)
 // StartLoggingW()
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingW(
+CX_LOGGING_API(int) StartLoggingW(
     const OLECHAR *fileName,            // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
@@ -2621,7 +2621,7 @@ CX_LOGGING_API int StartLoggingW(
 // StartLoggingExW()
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int StartLoggingExW(
+CX_LOGGING_API(int) StartLoggingExW(
     const OLECHAR *fileName,            // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
@@ -2655,7 +2655,7 @@ CX_LOGGING_API int StartLoggingExW(
 // LogMessageW()
 //   Log a message to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogMessageW(
+CX_LOGGING_API(int) LogMessageW(
     unsigned long level,                // level at which to log
     const OLECHAR *message)             // message to log
 {
@@ -2675,7 +2675,7 @@ CX_LOGGING_API int LogMessageW(
 // LogDebugW()
 //   Log a message at level LOG_LEVEL_DEBUG to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogDebugW(
+CX_LOGGING_API(int) LogDebugW(
     const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_DEBUG, message);
@@ -2686,7 +2686,7 @@ CX_LOGGING_API int LogDebugW(
 // LogInfoW()
 //   Log a message at level LOG_LEVEL_INFO to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogInfoW(
+CX_LOGGING_API(int) LogInfoW(
     const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_INFO, message);
@@ -2697,7 +2697,7 @@ CX_LOGGING_API int LogInfoW(
 // LogWarningW()
 //   Log a message at level LOG_LEVEL_WARNING to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogWarningW(
+CX_LOGGING_API(int) LogWarningW(
     const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_WARNING, message);
@@ -2708,7 +2708,7 @@ CX_LOGGING_API int LogWarningW(
 // LogErrorW()
 //   Log a message at level LOG_LEVEL_ERROR to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogErrorW(
+CX_LOGGING_API(int) LogErrorW(
     const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_ERROR, message);
@@ -2719,7 +2719,7 @@ CX_LOGGING_API int LogErrorW(
 // LogCriticalW()
 //   Log a message at level LOG_LEVEL_CRITICAL to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogCriticalW(
+CX_LOGGING_API(int) LogCriticalW(
     const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_CRITICAL, message);
@@ -2730,7 +2730,7 @@ CX_LOGGING_API int LogCriticalW(
 // LogTraceW()
 //   Log a message regardless of the current logging level to the log file.
 //-----------------------------------------------------------------------------
-CX_LOGGING_API int LogTraceW(
+CX_LOGGING_API(int) LogTraceW(
     const OLECHAR *message)             // message to log
 {
     return LogMessageW(LOG_LEVEL_NONE, message);
