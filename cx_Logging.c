@@ -1427,11 +1427,11 @@ CX_LOGGING_API(int) LogPythonObject(
     PyObject *object)                   // object to log
 {
     PyObject *stringRep, *encodedStringRep;
-    int result;
+    int result = 0;
 
     if (!object) {
         result = LogMessageForPythonV(logLevel, "%s%s => NULL", prefix, name);
-    } else {
+    } else if (IsLoggingAtLevelForPython(logLevel)) {
         stringRep = PyObject_Str(object);
         if (stringRep) {
             if (GetEncodedStringForPython(stringRep, &encodedStringRep) < 0) {
