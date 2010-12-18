@@ -146,10 +146,61 @@ classifiers = [
         "Topic :: Utilities"
 ]
 
+exportSymbols = [
+        "StartLogging",
+        "StarLoggingEx",
+        "StartLoggingForPythonThread",
+        "StartLoggingForPythonThreadEx",
+        "StartLoggingStderr",
+        "StartLoggingStderrEx",
+        "StartLoggingStdout",
+        "StartLoggingStdoutEx",
+        "StartLoggingFromEnvironment",
+        "StopLogging",
+        "StopLoggingForPythonThread",
+        "LogMessage",
+        "LogMessageV",
+        "LogMessageVaList",
+        "LogMessageForPythonV",
+        "LogMessageForPythonVaList",
+        "WriteMessageForPython",
+        "LogDebug",
+        "LogInfo",
+        "LogWarning",
+        "LogError",
+        "LogCritical",
+        "LogTrace",
+        "GetLoggingLevel",
+        "SetLoggingLevel",
+        "LogPythonObject",
+        "LogPythonException",
+        "LogPythonExceptionWithTraceback",
+        "LogConfiguredException",
+        "GetLoggingState",
+        "SetLoggingState",
+        "IsLoggingStarted"
+]
+
+if sys.platform == "win32":
+    exportSymbols.extend([
+            "LogWin32Error",
+            "LogGUID",
+            "StartLoggingW",
+            "StartLoggingExW",
+            "LogMessageW",
+            "LogDebugW",
+            "LogInfoW",
+            "LogWarningW",
+            "LogErrorW",
+            "LogCriticalW",
+            "LogTraceW"
+    ])
+
 # setup the extension
 extension = Extension(
         name = "cx_Logging",
         define_macros = defineMacros,
+        export_symbols = exportSymbols,
         sources = ["cx_Logging.c"],
         depends = ["cx_Logging.h"])
 
