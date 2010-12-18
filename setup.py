@@ -148,7 +148,7 @@ classifiers = [
 
 exportSymbols = [
         "StartLogging",
-        "StarLoggingEx",
+        "StartLoggingEx",
         "StartLoggingForPythonThread",
         "StartLoggingForPythonThreadEx",
         "StartLoggingStderr",
@@ -162,7 +162,6 @@ exportSymbols = [
         "LogMessageV",
         "LogMessageVaList",
         "LogMessageForPythonV",
-        "LogMessageForPythonVaList",
         "WriteMessageForPython",
         "LogDebug",
         "LogInfo",
