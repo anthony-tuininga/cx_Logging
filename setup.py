@@ -71,7 +71,10 @@ class build_ext(distutils.command.build_ext.build_ext):
             ext.libraries = ["ole32"]
         else:
             fileName = self.get_ext_filename(ext.name)
-            extraLinkArgs.append("-Wl,-soname,%s" % fileName)
+            if sys.platform.startswith("aix"):
+                extraLinkArgs.append("-Wl,-so%s" % fileName)
+            else:
+                extraLinkArgs.append("-Wl,-soname,%s" % fileName)
         distutils.command.build_ext.build_ext.build_extension(self, ext)
 
     def finalize_options(self):
