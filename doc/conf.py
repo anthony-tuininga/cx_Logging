@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 #
-# cx_Logging documentation build configuration file, created by
-# sphinx-quickstart on Thu Apr 10 22:10:59 2008.
-#
 # This file is execfile()d with the current directory set to its containing dir.
 #
 # The contents of this file are pickled, so don't put values in the namespace
@@ -34,15 +31,15 @@ master_doc = 'index'
 
 # General substitutions.
 project = 'cx_Logging'
-copyright = '2008, Anthony Tuininga'
+copyright = '2010, Anthony Tuininga'
 
 # The default replacements for |version| and |release|, also used in various
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '2.0'
+version = '2.1'
 # The full version, including alpha/beta/rc tags.
-release = '2.0'
+release = '2.1'
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
