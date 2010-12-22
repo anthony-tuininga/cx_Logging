@@ -1,3 +1,20 @@
+Changes from 2.0 to 2.1
+ 1) Added support for Python 2.7 and Python 3.1.
+ 2) Only perform the repr() calculation if the logging level is at the level
+    that a log message needs to be written in order to improve performance.
+ 3) Ensure that stdcall calling convention is used on Windows across the board
+    so that other applications which assume stdcall work as expected without
+    extra work.
+ 4) Include export symbols to make the Microsoft compiler on Windows export
+    symbols; otherwise, it ignores the request when using the stcall
+    convention.
+ 5) Fix determination of import library for the Microsoft compiler.
+ 6) Expose WriteMessageForPython() and IsLoggingAtLevelForPython() which are
+    needed by ceODBC.
+ 7) Eliminate segmentation fault if unicode string cannot be encoded.
+ 8) Remove situation where a failure in writing to the log file was masked.
+ 9) Fix support for AIX as suggested by Tamas Gulacsi.
+
 Changes from 1.4 to 2.0
  1) Added support for Python 3.x.
  2) Added support for logging Unicode strings in Python 2.x.
