@@ -180,7 +180,8 @@ exportSymbols = [
         "LogConfiguredException",
         "GetLoggingState",
         "SetLoggingState",
-        "IsLoggingStarted"
+        "IsLoggingStarted",
+        "IsLoggingAtLevelForPython"
 ]
 
 if sys.platform == "win32":
