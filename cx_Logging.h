@@ -126,6 +126,7 @@ CX_LOGGING_API(int) LogConfiguredException(PyObject*, const char*);
 CX_LOGGING_API(udt_LoggingState*) GetLoggingState(void);
 CX_LOGGING_API(int) SetLoggingState(udt_LoggingState*);
 CX_LOGGING_API(int) IsLoggingStarted(void);
+CX_LOGGING_API(int) IsLoggingAtLevelForPython(unsigned long);
 
 #if defined MS_WINDOWS && !defined UNDER_CE
 CX_LOGGING_API(int) LogWin32Error(DWORD, const char*);
