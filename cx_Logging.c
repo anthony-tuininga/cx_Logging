@@ -467,7 +467,7 @@ static int WriteMessageWithFormat(
 // sufficient that checking first would be helpful; otherwise, the overhead of
 // acquiring and releasing the lock twice would be detrimental to performance.
 //-----------------------------------------------------------------------------
-static int IsLoggingAtLevelForPython(
+CX_LOGGING_API(int) IsLoggingAtLevelForPython(
     unsigned long level)                // desired level
 {
     udt_LoggingState *loggingState;
