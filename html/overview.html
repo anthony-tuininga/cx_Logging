@@ -1,25 +1,28 @@
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview &mdash; cx_Logging v2.0 documentation</title>
+    <title>Overview &mdash; cx_Logging v2.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '2.0',
-        COLLAPSE_MODINDEX: false,
+        VERSION:     '2.1',
+        COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  false
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="cx_Logging v2.0 documentation" href="index.html" />
+    <link rel="top" title="cx_Logging v2.1 documentation" href="index.html" />
     <link rel="next" title="Module Interface" href="module.html" />
     <link rel="prev" title="cx_Logging" href="index.html" /> 
   </head>
@@ -31,25 +34,25 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
-             accesskey="M">modules</a> |</li>
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="module.html" title="Module Interface"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="cx_Logging"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">cx_Logging v2.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">cx_Logging v2.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
+
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body">
             
-  
-  <div class="section" id="id1">
-<span id="overview"></span><h1>Overview<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="overview">
+<span id="id1"></span><h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
 <p>cx_Logging writes log entries to files using both a Python and C interface
 which makes it particularly convenient for those Python modules written in C as well as for situations where Python is embedded but logging may be desirable
 before Python is initialized and loaded. A number of concepts and parameters to
@@ -119,28 +122,37 @@ True but it has no effect unless <a class="reference internal" href="#maximum-fi
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-            <h3><a href="index.html">Table Of Contents</a></h3>
-            <ul>
-<li><a class="reference external" href="">Overview</a><ul>
-<li><a class="reference external" href="#maximum-files">Maximum Files</a></li>
-<li><a class="reference external" href="#maximum-file-size">Maximum File Size</a></li>
-<li><a class="reference external" href="#prefix">Prefix</a></li>
-<li><a class="reference external" href="#reuse">Reuse</a></li>
-<li><a class="reference external" href="#rotate">Rotate</a></li>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Overview</a><ul>
+<li><a class="reference internal" href="#maximum-files">Maximum Files</a></li>
+<li><a class="reference internal" href="#maximum-file-size">Maximum File Size</a></li>
+<li><a class="reference internal" href="#prefix">Prefix</a></li>
+<li><a class="reference internal" href="#reuse">Reuse</a></li>
+<li><a class="reference internal" href="#rotate">Rotate</a></li>
 </ul>
 </li>
 </ul>
 
-            <h4>Previous topic</h4>
-            <p class="topless"><a href="index.html" title="previous chapter">cx_Logging</a></p>
-            <h4>Next topic</h4>
-            <p class="topless"><a href="module.html" title="next chapter">Module Interface</a></p>
-          <h3>Quick search</h3>
-            <form class="search" action="search.html" method="get">
-              <input type="text" name="q" size="18" /> <input type="submit" value="Go" />
-              <input type="hidden" name="check_keywords" value="yes" />
-              <input type="hidden" name="area" value="default" />
-            </form>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">cx_Logging</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="module.html"
+                        title="next chapter">Module Interface</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -150,23 +162,23 @@ True but it has no effect unless <a class="reference internal" href="#maximum-fi
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
+             >index</a></li>
         <li class="right" >
-          <a href="modindex.html" title="Global Module Index"
-             accesskey="M">modules</a> |</li>
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
         <li class="right" >
           <a href="module.html" title="Module Interface"
-             accesskey="N">next</a> |</li>
+             >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="cx_Logging"
-             accesskey="P">previous</a> |</li>
-        <li><a href="index.html">cx_Logging v2.0 documentation</a> &raquo;</li> 
+             >previous</a> |</li>
+        <li><a href="index.html">cx_Logging v2.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
-      &copy; Copyright 2008, Anthony Tuininga.
-      Last updated on Jun 16, 2009.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 0.5.1.
+        &copy; Copyright 2010, Anthony Tuininga.
+      Last updated on Dec 22, 2010.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
     </div>
   </body>
 </html>
