@@ -369,20 +369,24 @@ static int CheckForLogFileFull(
     long position;
 
     if (state->rotateFiles && state->maxFiles > 1) {
-        position = ftell(state->fp);
-        if (position < 0) {
-            sprintf(state->exceptionInfo.message,
-                    "Cannot get file position for %s: OS error %d.",
-                    state->fileName, errno);
-            return -1;
+        if (state->fp) {
+            position = ftell(state->fp);
+            if (position < 0) {
+                sprintf(state->exceptionInfo.message,
+                        "Cannot get file position for %s: OS error %d.",
+                        state->fileName, errno);
+                return -1;
+            }
         }
-        if (position >= state->maxFileSize) {
-            if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
-                return -1;
-            if (WriteString(state, "switching to a new log file\n") < 0)
-                return -1;
-            fclose(state->fp);
-            state->fp = NULL;
+        if (!state->fp || position >= state->maxFileSize) {
+            if (state->fp) {
+                if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
+                    return -1;
+                if (WriteString(state, "switching to a new log file\n") < 0)
+                    return -1;
+                fclose(state->fp);
+                state->fp = NULL;
+            }
             if (SwitchLogFiles(state) < 0)
                 return -1;
             if (WritePrefix(state, LOG_LEVEL_NONE) < 0)
