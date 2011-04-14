@@ -366,7 +366,7 @@ static int SwitchLogFiles(
 static int CheckForLogFileFull(
     LoggingState *state)                // state to use for writing
 {
-    long position;
+    unsigned long position;
 
     if (state->rotateFiles && state->maxFiles > 1) {
         if (state->fp) {
@@ -1394,9 +1394,10 @@ CX_LOGGING_API(int) LogGUID(
     const char *prefix,                 // prefix to print in front of it
     const IID *iid)                     // interface to print
 {
-    int strLength, result = 0;
     OLECHAR str[128];
     char outstr[128];
+    size_t strLength;
+    int result = 0;
 
     ACQUIRE_LOCK(gLoggingStateLock);
     if (gLoggingState && level >= gLoggingState->level) {
@@ -1405,8 +1406,8 @@ CX_LOGGING_API(int) LogGUID(
                     prefix);
         } else {
             strLength = wcslen(str) + 1;
-            if (WideCharToMultiByte(CP_ACP, 0, str, strLength, outstr,
-                    strLength, NULL, NULL) == 0) {
+            if (WideCharToMultiByte(CP_ACP, 0, str, (int) strLength, outstr,
+                    (int) strLength, NULL, NULL) == 0) {
                 result = LogMessageV(LOG_LEVEL_ERROR,
                         "%s: huh? can't convert string?", prefix);
             } else result = LogMessageV(level, "%s: %s", prefix, outstr);
@@ -2636,7 +2637,7 @@ CX_LOGGING_API(int) StartLoggingExW(
     ExceptionInfo *exceptionInfo)       // exception information (OUT)
 {
     char *tempFileName, *tempPrefix;
-    unsigned size;
+    size_t size;
 
     size = wcslen(fileName) + 1;
     tempFileName = alloca(size);
@@ -2664,7 +2665,7 @@ CX_LOGGING_API(int) LogMessageW(
     const OLECHAR *message)             // message to log
 {
     char *tempMessage;
-    unsigned size;
+    size_t size;
 
     size = wcslen(message) + 1;
     tempMessage = alloca(size);
