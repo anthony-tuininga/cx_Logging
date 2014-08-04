@@ -1485,6 +1485,7 @@ static int LogPythonExceptionNoTraceback(
     PyObject *type, *value, *traceback;
 
     PyErr_Fetch(&type, &value, &traceback);
+    PyErr_NormalizeException(&type, &value, &traceback);
     BaseLogPythonException(message, type, value);
     Py_XDECREF(type);
     Py_XDECREF(value);
@@ -1574,6 +1575,7 @@ CX_LOGGING_API(int) LogPythonException(
     PyObject *type, *value, *traceback;
 
     PyErr_Fetch(&type, &value, &traceback);
+    PyErr_NormalizeException(&type, &value, &traceback);
     LogPythonExceptionWithTraceback(message, type, value, traceback);
     Py_XDECREF(type);
     Py_XDECREF(value);
