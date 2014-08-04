@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>C Interface &mdash; cx_Logging v2.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="cx_Logging v2.1 documentation" href="index.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Module Interface" href="module.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="License"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="module.html" title="Module Interface"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">cx_Logging v2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="c-interface">
+<span id="cinterface"></span><h1>C Interface<a class="headerlink" href="#c-interface" title="Permalink to this headline">¶</a></h1>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">All methods return -1 for an error or 0 for success unless otherwise stated.</p>
+</div>
+<div class="section" id="starting-logging">
+<h2>Starting Logging<a class="headerlink" href="#starting-logging" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">See the <a class="reference internal" href="overview.html#overview"><em>Overview</em></a> for more information on the parameters specified
+here.</p>
+</div>
+<dl class="function">
+<dt id="StartLogging">
+int <tt class="descname">StartLogging</tt><big>(</big>const char*<em> fileName</em>, unsigned long<em> level</em>, unsigned long<em> maxfiles</em>, unsigned long<em> maxfilesize</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLogging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to the specified file at the specified level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingEx">
+int <tt class="descname">StartLoggingEx</tt><big>(</big>const char*<em> fileName</em>, unsigned long<em> level</em>, unsigned long<em> maxfiles</em>, unsigned long<em> maxfilesize</em>, const char*<em> prefix</em>, int<em> reuseExistingFiles</em>, int<em> rotateFiles</em>, ExceptionInfo*<em> exceptionInfo</em><big>)</big><a class="headerlink" href="#StartLoggingEx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to the specified file at the specified level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingFromEnvironment">
+int <tt class="descname">StartLoggingFromEnvironment</tt><big>(</big><big>)</big><a class="headerlink" href="#StartLoggingFromEnvironment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging by reading the environment variables &#8220;CX_LOGGING_FILE_NAME&#8221;,
+&#8220;CX_LOGGING_LEVEL&#8221;, &#8220;CX_LOGGING_MAX_FILES&#8221;, &#8220;CX_LOGGING_MAX_FILE_SIZE&#8221;,
+&#8220;CX_LOGGING_PREFIX&#8221; to determine the parameters to the StartLogging method.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingForPythonThread">
+int <tt class="descname">StartLoggingForPythonThread</tt><big>(</big>const char*<em> filename</em>, unsigned long<em> level</em>, unsigned long<em> maxfiles</em>, unsigned long<em> maxfilesize</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLoggingForPythonThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to the specified file at the specified level but only for the
+currently active Python thread.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingForPythonThreadEx">
+int <tt class="descname">StartLoggingForPythonThreadEx</tt><big>(</big>const char*<em> filename</em>, unsigned long<em> level</em>, unsigned long<em> maxfiles</em>, unsigned long<em> maxfilesize</em>, const char*<em> prefix</em>, int<em> reuseExistingFiles</em>, int<em> rotateFiles</em><big>)</big><a class="headerlink" href="#StartLoggingForPythonThreadEx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to the specified file at the specified level but only for the
+currently active Python thread.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingStderr">
+int <tt class="descname">StartLoggingStderr</tt><big>(</big>unsigned long<em> level</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLoggingStderr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to stderr at the specified level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingStderrEx">
+int <tt class="descname">StartLoggingStderrEx</tt><big>(</big>unsigned long<em> level</em>, const char*<em> prefix</em>, ExceptionInfo*<em> exceptionInfo</em><big>)</big><a class="headerlink" href="#StartLoggingStderrEx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to stderr at the specified level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingStdout">
+int <tt class="descname">StartLoggingStdout</tt><big>(</big>unsigned long<em> level</em>, const char*<em> prefix</em><big>)</big><a class="headerlink" href="#StartLoggingStdout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to stdout at the given level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StartLoggingStdoutEx">
+int <tt class="descname">StartLoggingStdoutEx</tt><big>(</big>unsigned long<em> level</em>, const char*<em> prefix</em>, ExcepitonInfo*<em> exceptionInfo</em><big>)</big><a class="headerlink" href="#StartLoggingStdoutEx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start logging to stdout at the given level.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="stopping-logging">
+<h2>Stopping Logging<a class="headerlink" href="#stopping-logging" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="StopLogging">
+int <tt class="descname">StopLogging</tt><big>(</big><big>)</big><a class="headerlink" href="#StopLogging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop logging.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="StopLoggingForPythonThread">
+int <tt class="descname">StopLoggingForPythonThread</tt><big>(</big><big>)</big><a class="headerlink" href="#StopLoggingForPythonThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop logging in the current Python thread.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="logging-messages">
+<h2>Logging Messages<a class="headerlink" href="#logging-messages" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="LogCritical">
+int <tt class="descname">LogCritical</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogCritical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log message at CRITICAL level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogDebug">
+int <tt class="descname">LogDebug</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogDebug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log message at DEBUG level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogError">
+int <tt class="descname">LogError</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log message at ERROR level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogInfo">
+int <tt class="descname">LogInfo</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log message at INFO level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogMessage">
+int <tt class="descname">LogMessage</tt><big>(</big>unsigned long<em> level</em>, const char*<em> message</em><big>)</big><a class="headerlink" href="#LogMessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a message at the specified level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogMessageV">
+int <tt class="descname">LogMessageV</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, ...<big>)</big><a class="headerlink" href="#LogMessageV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a message at the specified level using the standard C printf format with
+arguments.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogMessageVaList">
+int <tt class="descname">LogMessageVaList</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, va_list<em> args</em><big>)</big><a class="headerlink" href="#LogMessageVaList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a message at the specified level using the standard C printf format with
+arguments already encoded in a va_list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogMessageForPythonV">
+int <tt class="descname">LogMessageForPythonV</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, ...<big>)</big><a class="headerlink" href="#LogMessageForPythonV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a message at the specified level in the logging file defined for the
+current Python thread using the standard C printf format with arguments.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogMessageForPythonVaList">
+int <tt class="descname">LogMessageForPythonVaList</tt><big>(</big>unsigned long<em> level</em>, const char*<em> format</em>, va_list<em> args</em><big>)</big><a class="headerlink" href="#LogMessageForPythonVaList" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log a message at the specified level in the logging file defined for the
+current Python thread using the standard C printf format with arguments
+already encoded in a va_list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogTrace">
+int <tt class="descname">LogTrace</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogTrace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log message regardless of what level is currently being logged. This is
+primarily of use for logging tracing messages.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogWarning">
+int <tt class="descname">LogWarning</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log message at WARNING level.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="logging-exceptions">
+<h2>Logging Exceptions<a class="headerlink" href="#logging-exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="LogConfiguredException">
+int <tt class="descname">LogConfiguredException</tt><big>(</big>PyObject*<em> errorobj</em><big>)</big><a class="headerlink" href="#LogConfiguredException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log the contents of the error object. This method expects attributes named
+&#8220;message&#8221;, &#8220;templateId&#8221;, &#8220;arguments&#8221;, &#8220;traaceback&#8221;, &#8220;details&#8221; and
+&#8220;logLevel&#8221;.  If the &#8220;logLevel&#8221; attribute is missing logging is done at the
+ERROR level.  If any of the other attributes are missing or of the wrong
+type that fact is logged and processing continues. This function returns -1
+at all times as a convenience to the caller.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogPythonException">
+int <tt class="descname">LogPythonException</tt><big>(</big>const char*<em> message</em><big>)</big><a class="headerlink" href="#LogPythonException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log the current Python exception with the given message as the first message
+that is written to the log. The exception is logged with traceback if the
+traceback module is available. This function returns -1 at all times as a
+convenience to the caller.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="LogPythonExceptionWithTraceback">
+int <tt class="descname">LogPythonExceptionWithTraceback</tt><big>(</big>const char*<em> message</em>, PyObject*<em> type</em>, PyObject*<em> value</em>, PyObject*<em> traceback</em><big>)</big><a class="headerlink" href="#LogPythonExceptionWithTraceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log the specified Python exception with the given message as the first
+message that is written to the log. The exception is logged with traceback
+if the traceback module is available. This function returns -1 at all times
+as a convenience to the caller.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="logging-state">
+<h2>Logging State<a class="headerlink" href="#logging-state" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="GetLoggingLevel">
+unsigned long <tt class="descname">GetLoggingLevel</tt><big>(</big><big>)</big><a class="headerlink" href="#GetLoggingLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current logging level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="GetLoggingState">
+udt_LoggingState* <tt class="descname">GetLoggingState</tt><big>(</big><big>)</big><a class="headerlink" href="#GetLoggingState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the logging state for the current Python thread.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="IsLoggingAtLevelForPython">
+int <tt class="descname">IsLoggingAtLevelForPython</tt><big>(</big>unsigned long<em> level</em><big>)</big><a class="headerlink" href="#IsLoggingAtLevelForPython" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return 1 if the current logging state is such that a message at the
+specified level should be logged. This is only used for cases where the
+amount of time required to calculate the message to log is sufficient that
+checking first would noticeably improve performance; otherwise, the overhead
+of acquiring and releasing the lock twice would be detrimental to
+performance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="IsLoggingStarted">
+int <tt class="descname">IsLoggingStarted</tt><big>(</big><big>)</big><a class="headerlink" href="#IsLoggingStarted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return 1 if logging has been started and 0 otherwise.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="SetLoggingLevel">
+int <tt class="descname">SetLoggingLevel</tt><big>(</big>unsigned long<em> newlevel</em><big>)</big><a class="headerlink" href="#SetLoggingLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the current logging level.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="SetLoggingState">
+int <tt class="descname">SetLoggingState</tt><big>(</big>udt_LoggingState*<em> state</em><big>)</big><a class="headerlink" href="#SetLoggingState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the logging state for the current Python thread.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">C Interface</a><ul>
+<li><a class="reference internal" href="#starting-logging">Starting Logging</a></li>
+<li><a class="reference internal" href="#stopping-logging">Stopping Logging</a></li>
+<li><a class="reference internal" href="#logging-messages">Logging Messages</a></li>
+<li><a class="reference internal" href="#logging-exceptions">Logging Exceptions</a></li>
+<li><a class="reference internal" href="#logging-state">Logging State</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="module.html"
+                        title="previous chapter">Module Interface</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="license.html"
+                        title="next chapter">License</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="license.html" title="License"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="module.html" title="Module Interface"
+             >previous</a> |</li>
+        <li><a href="index.html">cx_Logging v2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Anthony Tuininga.
+      Last updated on Dec 22, 2010.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>

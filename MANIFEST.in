@@ -1,0 +1,4 @@
+include MANIFEST.in
+include *.h
+include *.txt
+recursive-include html *.css *.html *.png

@@ -1,0 +1,71 @@
+Changes from 2.0 to 2.1
+ 1) Added support for Python 2.7 and Python 3.1.
+ 2) Only perform the repr() calculation if the logging level is at the level
+    that a log message needs to be written in order to improve performance.
+ 3) Ensure that stdcall calling convention is used on Windows across the board
+    so that other applications which assume stdcall work as expected without
+    extra work.
+ 4) Include export symbols to make the Microsoft compiler on Windows export
+    symbols; otherwise, it ignores the request when using the stcall
+    convention.
+ 5) Fix determination of import library for the Microsoft compiler.
+ 6) Expose WriteMessageForPython() and IsLoggingAtLevelForPython() which are
+    needed by ceODBC.
+ 7) Eliminate segmentation fault if unicode string cannot be encoded.
+ 8) Remove situation where a failure in writing to the log file was masked.
+ 9) Fix support for AIX as suggested by Tamas Gulacsi.
+
+Changes from 1.4 to 2.0
+ 1) Added support for Python 3.x.
+ 2) Added support for logging Unicode strings in Python 2.x.
+ 3) Added support for setting the encoding to use for Unicode strings when
+    starting logging and a Python method SetEncoding() for setting it
+    afterwards and a Python method GetEncoding() to view the value currently
+    being used.
+ 4) Added C methods StartLoggingEx(), StartLoggingStderrEx(),
+    StartLoggingStdoutEx(), StartLoggingExW() and
+    StartLoggingForPythonThreadEx() which provide exception information to
+    the caller and (if applicable) allow the specification of whether files
+    are reused and rotated (see documentation for more information).
+ 5) Added Python method SetExceptionInfo() which allows specification of the
+    base exception class, a method for creating an instance of that class and a
+    message that will be displayed prior to the logging of exceptions of that
+    class.
+ 6) The Python method LogException() now returns a configured exception if one
+    was built or passed in directly.
+ 7) Transformed documentation to new style used in Python 2.6 and higher and
+    enhanced the contents.
+ 8) Added support for compiling on 64-bit Windows.
+
+Changes from 1.3 to 1.4
+ 1) On Windows, ensure that the log files are opened in such a way that they
+    are not inherited by subprocesses; otherwise, the existence of a
+    subprocess prevents log rotation.
+ 2) Build an import library on Windows and change the shared object name of
+    the module so that other projects can use it directly at the C level.
+ 3) Removed unnecessary dependency on the win32api package on Windows.
+ 4) Tweaked setup script to build PKG-INFO and MANIFEST using metadata in the
+    setup script instead of separate files.
+
+Changes from 1.2 to 1.3
+ 1) Fix support for importing in Python 2.5 on Windows. The module now uses the
+    .pyd extension instead of the .dll extension since support for importing
+    modules with the .dll extension was removed in Python 2.5.
+ 2) Add support for 64-bit Python installations, particularly in Python 2.5.
+
+Changes from 1.1 to 1.2
+ 1) Changed macros to support building with the Microsoft compiler as
+    requested by Christopher Mioni.
+ 2) Added keywords arguments for the StartLogging() method as requested by
+    Christopher Mioni.
+ 3) Use __DATE__ and __TIME__ to determine the date and time of the build
+    rather than passing it through directly.
+ 4) Added support for getting a file object for the file that is currently
+    being logged to or None if no logging is taking place.
+
+
+Changes from 1.0 to 1.1
+ 1) Raise an exception if a write fails during logging.
+ 2) Add module constants version and buildtime in order to aid in support and
+    debugging.
+

@@ -1,0 +1,165 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>cx_Logging &mdash; cx_Logging v2.1 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '2.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  false
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="cx_Logging v2.1 documentation" href="#" />
+    <link rel="next" title="Overview" href="overview.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Overview"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">cx_Logging v2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="cx-logging">
+<h1>cx_Logging<a class="headerlink" href="#cx-logging" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Anthony Tuininga</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 22, 2010</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="front-matter">
+<span id="front"></span><h1>Front Matter<a class="headerlink" href="#front-matter" title="Permalink to this headline">¶</a></h1>
+<p>Copyright © 2007-2010 Anthony Tuininga. All rights reserved.</p>
+<p>Copyright © 2004-2007 Computronix. All rights reserved.</p>
+<p>See <a class="reference internal" href="license.html#license"><em>License</em></a> for complete license and permissions information.</p>
+<div class="topic">
+<p class="topic-title first">Abstract</p>
+<p>cx_Logging is a Python extension module that behaves similarly to the
+logging module found in the standard Python library but has a C interface
+in addition to a Python interface.</p>
+</div>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#maximum-files">Maximum Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#maximum-file-size">Maximum File Size</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#prefix">Prefix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#reuse">Reuse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="overview.html#rotate">Rotate</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="module.html">Module Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="module.html#starting-logging">Starting Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module.html#stopping-logging">Stopping Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module.html#logging-messages">Logging Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module.html#logging-exceptions">Logging Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module.html#logging-state">Logging State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="module.html#constants">Constants</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cinterface.html">C Interface</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cinterface.html#starting-logging">Starting Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinterface.html#stopping-logging">Stopping Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinterface.html#logging-messages">Logging Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinterface.html#logging-exceptions">Logging Exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cinterface.html#logging-state">Logging State</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+</ul>
+</div>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">cx_Logging</a></li>
+<li><a class="reference internal" href="#front-matter">Front Matter</a><ul>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="overview.html"
+                        title="next chapter">Overview</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Overview"
+             >next</a> |</li>
+        <li><a href="#">cx_Logging v2.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, Anthony Tuininga.
+      Last updated on Dec 22, 2010.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>
