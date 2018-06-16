@@ -2390,6 +2390,7 @@ static PyObject* LogExceptionForPython(
 {
     PyObject *value, *configuredExcBaseClass, *excBuilder, *dict;
     PyObject *messageObj = NULL, *encodedMessage = NULL;
+    PyObject *excType, *excValue, *traceback;
     int isConfigured = 1, isBuilt = 0;
     PyThreadState *threadState;
     char *message = NULL;
@@ -2399,8 +2400,19 @@ static PyObject* LogExceptionForPython(
     if (!PyArg_ParseTuple(args, "|OO", &value, &configuredExcBaseClass))
         return NULL;
 
+    // determine thread state and exception
+    threadState = PyThreadState_Get();
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 7
+    excType = threadState->exc_state.exc_type;
+    excValue = threadState->exc_state.exc_value;
+    traceback = threadState->exc_state.exc_traceback;
+#else
+    excType = threadState->exc_type;
+    excValue = threadState->exc_value;
+    traceback = threadState->exc_traceback;
+#endif
+
     // determine which base class to use for comparisons
-    threadState = PyThreadState_GET();
     dict = GetThreadStateDictionary();
     if (dict && !configuredExcBaseClass)
         configuredExcBaseClass = PyDict_GetItemString(dict,
@@ -2412,7 +2424,7 @@ static PyObject* LogExceptionForPython(
         if (value)
             messageObj = value;
         else {
-            value = threadState->exc_value;
+            value = excValue;
             if (configuredExcBaseClass && value) {
                 isConfigured = PyObject_IsInstance(value,
                         configuredExcBaseClass);
@@ -2424,13 +2436,11 @@ static PyObject* LogExceptionForPython(
 
     // if class is not configured but we have a way of building one,
     // build it now
-    if (!isConfigured && dict && threadState->exc_type &&
-            threadState->exc_value && threadState->exc_traceback) {
+    if (!isConfigured && dict && excType && excValue && traceback) {
         excBuilder = PyDict_GetItemString(dict, KEY_EXC_BUILDER);
         if (excBuilder) {
-            value = PyObject_CallFunctionObjArgs(excBuilder,
-                    threadState->exc_type, threadState->exc_value,
-                    threadState->exc_traceback, NULL);
+            value = PyObject_CallFunctionObjArgs(excBuilder, excType, excValue,
+                    traceback, NULL);
             if (!value)
                 return NULL;
             isConfigured = 1;
@@ -2455,8 +2465,7 @@ static PyObject* LogExceptionForPython(
     if (isConfigured) {
         LogConfiguredException(value, message);
     } else {
-        LogPythonExceptionWithTraceback(message, threadState->exc_type,
-                threadState->exc_value, threadState->exc_traceback);
+        LogPythonExceptionWithTraceback(message, excType, excValue, traceback);
     }
     Py_XDECREF(encodedMessage);
 
