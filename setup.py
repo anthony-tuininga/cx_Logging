@@ -1,14 +1,9 @@
-"""Distutils script for cx_Logging.
+"""
+Distutils script for cx_Logging.
 
-Windows platforms:
-    python setup.py build --compiler=mingw32 install
-
-Unix platforms
-    python setup.py build install
-
+python setup.py build install
 """
 
-import distutils.command.bdist_rpm
 import distutils.command.build_ext
 import distutils.command.install_data
 import distutils.util
@@ -19,24 +14,7 @@ from distutils.core import setup
 from distutils.extension import Extension
 from distutils import sysconfig
 
-BUILD_VERSION = "2.1"
-
-# define class to ensure the file name given includes the Python version
-class bdist_rpm(distutils.command.bdist_rpm.bdist_rpm):
-
-    def run(self):
-        distutils.command.bdist_rpm.bdist_rpm.run(self)
-        specFile = os.path.join(self.rpm_base, "SPECS",
-                "%s.spec" % self.distribution.get_name())
-        queryFormat = "%{name}-%{version}-%{release}.%{arch}.rpm"
-        command = "rpm -q --qf '%s' --specfile %s" % (queryFormat, specFile)
-        origFileName = os.popen(command).read()
-        parts = origFileName.split("-")
-        parts.insert(2, "py%s%s" % sys.version_info[:2])
-        newFileName = "-".join(parts)
-        self.move_file(os.path.join("dist", origFileName),
-        os.path.join("dist", newFileName))
-
+BUILD_VERSION = "2.2"
 
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
@@ -134,7 +112,6 @@ if sys.platform in ("win32", "cygwin"):
             files.append(fullName)
         dataFiles.append((fullDirName, files))
 docFiles = "LICENSE.txt HISTORY.txt README.txt html test"
-options = dict(bdist_rpm = dict(doc_files = docFiles))
 
 # define the classifiers for the project
 classifiers = [
@@ -210,8 +187,7 @@ extension = Extension(
 # perform the setup
 setup(
         name = "cx_Logging",
-        cmdclass = dict(build_ext = build_ext, install_data = install_data,
-                bdist_rpm = bdist_rpm),
+        cmdclass = dict(build_ext = build_ext, install_data = install_data),
         version = BUILD_VERSION,
         description = "Python and C interfaces for logging",
         data_files = dataFiles,
@@ -224,6 +200,5 @@ setup(
         keywords = "logging",
         classifiers = classifiers,
         license = "Python Software Foundation License",
-        ext_modules = [extension],
-        options = options)
+        ext_modules = [extension])
 
