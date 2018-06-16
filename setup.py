@@ -95,24 +95,6 @@ defineMacros = [
         ("BUILD_VERSION", BUILD_VERSION)
 ]
 
-# define the list of files to be included as documentation for Windows
-dataFiles = None
-if sys.platform in ("win32", "cygwin"):
-    baseName = "cx_Logging-doc"
-    dataFiles = [(baseName, [ "LICENSE.TXT", "README.TXT", "HISTORY.txt"])]
-    for dir in ("html", "html/_static", "test"):
-        files = []
-        fullDirName = "%s/%s" % (baseName, dir)
-        for name in os.listdir(dir):
-            if name.startswith("."):
-                continue
-            fullName = "%s/%s" % (dir, name)
-            if os.path.isdir(fullName):
-                continue
-            files.append(fullName)
-        dataFiles.append((fullDirName, files))
-docFiles = "LICENSE.txt HISTORY.txt README.txt html test"
-
 # define the classifiers for the project
 classifiers = [
         "Development Status :: 5 - Production/Stable",
@@ -190,7 +172,7 @@ setup(
         cmdclass = dict(build_ext = build_ext, install_data = install_data),
         version = BUILD_VERSION,
         description = "Python and C interfaces for logging",
-        data_files = dataFiles,
+        data_files = [ ("cx_Logging-doc", ["LICENSE.txt", "README.txt"]) ],
         long_description = "Python and C interfaces for logging",
         author = "Anthony Tuininga",
         author_email = "anthony.tuininga@gmail.com",

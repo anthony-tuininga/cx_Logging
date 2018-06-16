@@ -44,10 +44,11 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   overview
-   module
-   cinterface
-   license
+   overview.rst
+   module.rst
+   cinterface.rst
+   releasenotes.rst
+   license.rst
 
 * :ref:`genindex`
 
