@@ -163,8 +163,8 @@ extension = Extension(
         name = "cx_Logging",
         define_macros = defineMacros,
         export_symbols = exportSymbols,
-        sources = ["cx_Logging.c"],
-        depends = ["cx_Logging.h"])
+        sources = ["src/cx_Logging.c"],
+        depends = ["src/cx_Logging.h"])
 
 # perform the setup
 setup(
