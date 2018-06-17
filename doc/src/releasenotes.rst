@@ -3,6 +3,16 @@
 cx_Logging Release Notes
 ========================
 
+Version 2.2 (June 2018)
+-----------------------
+
+#)  Support is now for Python 2.7, 3.5, 3.6 and 3.7.
+#)  If the log file is not open, don't attempt to write to it!
+#)  Normalize the exception which is needed for Python 3.x.
+#)  Reorganized documentation and added release notes to documentation.
+#)  Switched development from Mercurial to Git.
+
+
 Version 2.1 (December 2010)
 ---------------------------
 
