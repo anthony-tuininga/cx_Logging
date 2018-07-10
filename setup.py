@@ -10,9 +10,12 @@ import distutils.util
 import os
 import sys
 
-from distutils.core import setup
-from distutils.extension import Extension
-from distutils import sysconfig
+# if setuptools is detected, use it to add support for eggs
+try:
+    from setuptools import setup, Extension
+except:
+    from distutils.core import setup
+    from distutils.extension import Extension
 
 BUILD_VERSION = "2.2"
 

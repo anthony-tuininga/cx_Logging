@@ -1,3 +1,4 @@
 MANIFEST
 build/
 dist/
+cx_Logging.egg-info/
