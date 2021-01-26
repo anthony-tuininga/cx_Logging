@@ -45,44 +45,6 @@
 #define BUILD_VERSION_STRING    xstr(BUILD_VERSION)
 
 
-// define Py_ssize_t for versions before Python 2.5
-#if PY_VERSION_HEX < 0x02050000
-typedef int Py_ssize_t;
-#define PY_SSIZE_T_MAX INT_MAX
-#define PY_SSIZE_T_MIN INT_MIN
-#endif
-
-
-// use the bytes methods in cx_Logging and define them as the equivalent string
-// type methods as is done in Python 2.6
-#ifndef PyBytes_Check
-    #define PyBytes_AS_STRING           PyString_AS_STRING
-    #define PyBytes_AsString            PyString_AsString
-    #define PyBytes_Check               PyString_Check
-    #define PyBytes_Format              PyString_Format
-    #define PyBytes_FromString          PyString_FromString
-    #define PyBytes_Type                PyString_Type
-#endif
-
-
-// define PyInt_* macros for Python 3.x
-#ifndef PyInt_Check
-    #define PyInt_AsLong                PyLong_AsLong
-    #define PyInt_FromLong              PyLong_FromLong
-#endif
-
-
-// define macros for managing the differences between handling strings
-// in Python 2.x and Python 3.x
-#if PY_MAJOR_VERSION >= 3
-    #define cxString_Type               &PyUnicode_Type
-    #define cxString_Check              PyUnicode_Check
-#else
-    #define cxString_Type               &PyBytes_Type
-    #define cxString_Check              PyBytes_Check
-#endif
-
-
 // define global logging state
 static LoggingState *gLoggingState;
 static LOCK_TYPE gLoggingStateLock;
@@ -1623,7 +1585,7 @@ static int LogTemplateIdFromErrorObj(
     templateId = PyObject_GetAttrString(errorObj, "templateId");
     if (!templateId)
         return LogPythonException("no templateId on error object");
-    value = PyInt_AsLong(templateId);
+    value = PyLong_AsLong(templateId);
     Py_DECREF(templateId);
     if (PyErr_Occurred())
         return LogPythonException("templateId attribute not an int");
@@ -1724,7 +1686,7 @@ CX_LOGGING_API(int) LogConfiguredException(
     // determine the level at which to log
     logLevelObj = PyObject_GetAttrString(errorObj, "logLevel");
     if (logLevelObj) {
-        logLevel = PyInt_AsLong(logLevelObj);
+        logLevel = PyLong_AsLong(logLevelObj);
         if (PyErr_Occurred()) {
             logLevel = LOG_LEVEL_ERROR;
             LogPythonException("logLevel attribute is not an integer");
@@ -1822,10 +1784,6 @@ static PyObject* LogMessageForPythonWithLevel(
             return NULL;
         if (PyUnicode_Check(format))
             temp = PyUnicode_Format(format, tempArgs);
-#if PY_MAJOR_VERSION < 3
-        else if (PyBytes_Check(format))
-            temp = PyBytes_Format(format, tempArgs);
-#endif
         else {
             PyErr_SetString(PyExc_TypeError, "format must be a string");
             Py_DECREF(tempArgs);
@@ -2131,8 +2089,8 @@ static PyObject* GetLoggingLevelForPython(
 
     loggingState = GetLoggingState();
     if (loggingState)
-        return PyInt_FromLong(loggingState->state->level);
-    return PyInt_FromLong(GetLoggingLevel());
+        return PyLong_FromLong(loggingState->state->level);
+    return PyLong_FromLong(GetLoggingLevel());
 }
 
 
@@ -2171,22 +2129,12 @@ static PyObject* GetLoggingFileForPython(
 
     loggingState = GetLoggingState();
     if (loggingState)
-#if PY_MAJOR_VERSION >= 3
         return PyFile_FromFd(fileno(loggingState->state->fp),
                 loggingState->state->fileName, "w", -1, NULL, NULL, NULL, 0);
-#else
-        return PyFile_FromFile(loggingState->state->fp,
-                loggingState->state->fileName, "w", NULL);
-#endif
     ACQUIRE_LOCK(gLoggingStateLock);
     if (gLoggingState)
-#if PY_MAJOR_VERSION >= 3
         fileObj = PyFile_FromFd(fileno(gLoggingState->fp),
                 gLoggingState->fileName, "w", -1, NULL, NULL, NULL, 0);
-#else
-        fileObj = PyFile_FromFile(gLoggingState->fp,
-                gLoggingState->fileName, "w", NULL);
-#endif
     else {
         Py_INCREF(Py_None);
         fileObj = Py_None;
@@ -2209,22 +2157,14 @@ static PyObject* GetLoggingFileNameForPython(
 
     loggingState = GetLoggingState();
     if (loggingState)
-#if PY_MAJOR_VERSION >= 3
         return PyUnicode_Decode(loggingState->state->fileName,
                 strlen(loggingState->state->fileName),
                 Py_FileSystemDefaultEncoding, NULL);
-#else
-        return PyBytes_FromString(loggingState->state->fileName);
-#endif
     ACQUIRE_LOCK(gLoggingStateLock);
     if (gLoggingState)
-#if PY_MAJOR_VERSION >= 3
         fileNameObj = PyUnicode_Decode(gLoggingState->fileName,
                 strlen(gLoggingState->fileName), Py_FileSystemDefaultEncoding,
                 NULL);
-#else
-        fileNameObj = PyBytes_FromString(gLoggingState->fileName);
-#endif
     else {
         Py_INCREF(Py_None);
         fileNameObj = Py_None;
@@ -2286,7 +2226,7 @@ static PyObject* SetExceptionInfoForPython(
     PyObject *baseClass, *message, *builder, *dict;
 
     message = builder = NULL;
-    if (!PyArg_ParseTuple(args, "O|OO!", &baseClass, &builder, cxString_Type,
+    if (!PyArg_ParseTuple(args, "O|OO!", &baseClass, &builder, PyUnicode_Type,
             &message))
         return NULL;
 
@@ -2323,23 +2263,14 @@ static PyObject* GetEncodingForPython(
     if (dict) {
         encoding = PyDict_GetItemString(dict, KEY_ENCODING);
         if (encoding) {
-#if PY_MAJOR_VERSION >= 3
             return PyUnicode_Decode(PyBytes_AS_STRING(encoding),
                     PyBytes_GET_SIZE(encoding), NULL, NULL);
-#else
-            Py_INCREF(encoding);
-            return encoding;
-#endif
         }
     }
 
     // otherwise, return a representation of the default encoding
-#if PY_MAJOR_VERSION >= 3
     return PyUnicode_Decode(PyUnicode_GetDefaultEncoding(),
             strlen(PyUnicode_GetDefaultEncoding()), NULL, NULL);
-#else
-    return PyBytes_FromString(PyUnicode_GetDefaultEncoding());
-#endif
 }
 
 
@@ -2360,17 +2291,13 @@ static PyObject* SetEncodingForPython(
     if (dict)
         origEncoding = PyDict_GetItemString(dict, KEY_ENCODING);
     if (origEncoding) {
-#if PY_MAJOR_VERSION >= 3
         origEncoding = PyUnicode_Decode(PyBytes_AS_STRING(origEncoding),
                 PyBytes_GET_SIZE(origEncoding), NULL, NULL);
         if (!origEncoding)
             return NULL;
-#endif
         LogPythonObject(LOG_LEVEL_INFO, "    original ", "encoding",
                 origEncoding);
-#if PY_MAJOR_VERSION >= 3
         Py_DECREF(origEncoding);
-#endif
     } else {
         LogMessageV(LOG_LEVEL_INFO, "    original encoding => %s",
                 PyUnicode_GetDefaultEncoding());
@@ -2419,7 +2346,7 @@ static PyObject* LogExceptionForPython(
                 KEY_EXC_BASE_CLASS);
 
     // now determine if base class is configured or not
-    if (!value || cxString_Check(value)) {
+    if (!value || PyUnicode_Check(value)) {
         isConfigured = 0;
         if (value)
             messageObj = value;
@@ -2520,7 +2447,6 @@ static PyMethodDef gLoggingModuleMethods[] = {
 };
 
 
-#if PY_MAJOR_VERSION >= 3
 //-----------------------------------------------------------------------------
 //   Declaration of module definition for Python 3.x.
 //-----------------------------------------------------------------------------
@@ -2535,7 +2461,6 @@ static struct PyModuleDef g_ModuleDef = {
     NULL,                               // clear
     NULL                                // free
 };
-#endif
 
 
 //-----------------------------------------------------------------------------
@@ -2547,12 +2472,7 @@ static PyObject *Module_Initialize(void)
     PyObject *module;
 
     // initialize module and types
-    PyEval_InitThreads();
-#if PY_MAJOR_VERSION >= 3
     module = PyModule_Create(&g_ModuleDef);
-#else
-    module = Py_InitModule("cx_Logging", gLoggingModuleMethods);
-#endif
     if (!module)
         return NULL;
     if (PyType_Ready(&gPythonLoggingStateType) < 0)
@@ -2602,17 +2522,10 @@ static PyObject *Module_Initialize(void)
 //-----------------------------------------------------------------------------
 // Start routine for the module.
 //-----------------------------------------------------------------------------
-#if PY_MAJOR_VERSION >= 3
 PyMODINIT_FUNC PyInit_cx_Logging(void)
 {
     return Module_Initialize();
 }
-#else
-void initcx_Logging(void)
-{
-    Module_Initialize();
-}
-#endif
 
 #ifdef MS_WINDOWS
 //-----------------------------------------------------------------------------
