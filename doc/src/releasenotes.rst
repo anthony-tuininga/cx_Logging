@@ -3,6 +3,13 @@
 cx_Logging Release Notes
 ========================
 
+Version 3.0 (January 2021)
+--------------------------
+
+#)  Support is now for Python 3.6 and higher.
+#)  Fix source package to include header files.
+
+
 Version 2.2 (July 2018)
 -----------------------
 

@@ -1,4 +1,4 @@
 include MANIFEST.in
-include *.h
 include *.txt
-recursive-include html *.css *.html *.png
+recursive-include src *.h *.c
+recursive-include doc *.rst

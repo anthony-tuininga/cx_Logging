@@ -17,7 +17,7 @@ except:
     from distutils.core import setup
     from distutils.extension import Extension
 
-BUILD_VERSION = "2.2"
+BUILD_VERSION = "3.0"
 
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
@@ -98,19 +98,6 @@ defineMacros = [
         ("BUILD_VERSION", BUILD_VERSION)
 ]
 
-# define the classifiers for the project
-classifiers = [
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: Python Software Foundation License",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Programming Language :: C",
-        "Programming Language :: Python",
-        "Topic :: Software Development :: Libraries :: Python Modules",
-        "Topic :: Utilities"
-]
-
 exportSymbols = [
         "StartLogging",
         "StartLoggingEx",
@@ -171,19 +158,7 @@ extension = Extension(
 
 # perform the setup
 setup(
-        name = "cx_Logging",
         cmdclass = dict(build_ext = build_ext, install_data = install_data),
         version = BUILD_VERSION,
-        description = "Python and C interfaces for logging",
         data_files = [ ("cx_Logging-doc", ["LICENSE.txt", "README.txt"]) ],
-        long_description = "Python and C interfaces for logging",
-        author = "Anthony Tuininga",
-        author_email = "anthony.tuininga@gmail.com",
-        maintainer = "Anthony Tuininga",
-        maintainer_email = "anthony.tuininga@gmail.com",
-        url = "http://cx-logging.sourceforge.net",
-        keywords = "logging",
-        classifiers = classifiers,
-        license = "Python Software Foundation License",
         ext_modules = [extension])
-
