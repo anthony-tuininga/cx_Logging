@@ -160,5 +160,4 @@ extension = Extension(
 setup(
         cmdclass = dict(build_ext = build_ext, install_data = install_data),
         version = BUILD_VERSION,
-        data_files = [ ("cx_Logging-doc", ["LICENSE.txt", "README.txt"]) ],
         ext_modules = [extension])
