@@ -17,7 +17,7 @@ except ImportError:
     from distutils.core import setup
     from distutils.extension import Extension
 
-BUILD_VERSION = "3.0"
+BUILD_VERSION = "3.1"
 
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
