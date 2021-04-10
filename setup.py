@@ -65,8 +65,8 @@ class build_ext(distutils.command.build_ext.build_ext):
             self.build_implib = None
 
 
-# define class to ensure that the import library (Windows) is installed
-# properly; this is not relevant on other platforms
+# define class to ensure that the import library and include file is installed
+# properly; this is relevant on Windows platform only.
 class install_data(distutils.command.install_data.install_data):
 
     def run(self):
@@ -78,6 +78,11 @@ class install_data(distutils.command.install_data.install_data):
             base_name = os.path.basename(command.import_library_name)
             target_file_name = os.path.join(target_dir, base_name)
             self.copy_file(command.import_library_name, target_file_name)
+            self.outfiles.append(target_file_name)
+            target_dir = os.path.join(self.install_dir, "Include")
+            self.mkpath(target_dir)
+            target_file_name = os.path.join(target_dir, "cx_Logging.h")
+            self.copy_file("src\\cx_Logging.h", target_file_name)
             self.outfiles.append(target_file_name)
 
 
