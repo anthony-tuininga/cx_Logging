@@ -3,6 +3,16 @@
 cx_Logging Release Notes
 ========================
 
+Version 3.1 (TBD)
+-----------------
+
+#)  On Windows, include cx_Logging.h in the wheel as well (`pull request 4
+    <https://github.com/anthony-tuininga/cx_Logging/pull/4>`__).
+#)  Use text files as metadata for wheels (`pull request 5
+    <https://github.com/anthony-tuininga/cx_Logging/pull/5>`__).
+#)  Convert Python code to be PEP 8 compliant.
+
+
 Version 3.0 (January 2021)
 --------------------------
 
