@@ -88,7 +88,15 @@ static int LoggingState_OpenFileForWriting(
     }
 
     // open file for writing
+#ifdef MS_WINDOWS
+    if (state->reuseExistingFiles)
+        state->fp = fopen(state->fileName, "w");
+    else
+        state->fp = _fsopen(state->fileName, "w", _SH_DENYWR);
+#else
     state->fp = fopen(state->fileName, "w");
+#endif
+
     if (!state->fp) {
         sprintf(state->exceptionInfo.message,
                 "Failed to open file %s: OS error %d", state->fileName, errno);

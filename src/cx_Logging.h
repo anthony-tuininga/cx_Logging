@@ -8,6 +8,7 @@
 
 // define platform specific variables
 #ifdef MS_WINDOWS
+    #include <share.h>
     #include <windows.h>
     #define LOCK_TYPE CRITICAL_SECTION
     #ifdef __GNUC__
