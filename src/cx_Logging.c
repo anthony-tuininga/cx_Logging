@@ -2337,7 +2337,9 @@ static PyObject* LogExceptionForPython(
 
     // determine thread state and exception
     threadState = PyThreadState_Get();
-#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 7
+#if PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 11
+    excValue = threadState->exc_state.exc_value;
+#elif PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 7
     excType = threadState->exc_state.exc_type;
     excValue = threadState->exc_state.exc_value;
     traceback = threadState->exc_state.exc_traceback;
