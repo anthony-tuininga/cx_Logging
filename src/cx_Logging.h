@@ -124,16 +124,16 @@ CX_LOGGING_API(int) LogGUID(unsigned long, const char*, const IID*);
 #endif
 
 #ifdef MS_WINDOWS
-CX_LOGGING_API(int) StartLoggingW(const OLECHAR*, unsigned long, unsigned long,
-        unsigned long, const OLECHAR*);
-CX_LOGGING_API(int) StartLoggingExW(const OLECHAR*, unsigned long,
-        unsigned long, unsigned long, const OLECHAR*, int, int,
+CX_LOGGING_API(int) StartLoggingW(const WCHAR*, unsigned long, unsigned long,
+        unsigned long, const WCHAR*);
+CX_LOGGING_API(int) StartLoggingExW(const WCHAR*, unsigned long,
+        unsigned long, unsigned long, const WCHAR*, int, int,
         ExceptionInfo*);
-CX_LOGGING_API(int) LogMessageW(unsigned long, const OLECHAR*);
-CX_LOGGING_API(int) LogDebugW(const OLECHAR*);
-CX_LOGGING_API(int) LogInfoW(const OLECHAR*);
-CX_LOGGING_API(int) LogWarningW(const OLECHAR*);
-CX_LOGGING_API(int) LogErrorW(const OLECHAR*);
-CX_LOGGING_API(int) LogCriticalW(const OLECHAR*);
-CX_LOGGING_API(int) LogTraceW(const OLECHAR*);
+CX_LOGGING_API(int) LogMessageW(unsigned long, const WCHAR*);
+CX_LOGGING_API(int) LogDebugW(const WCHAR*);
+CX_LOGGING_API(int) LogInfoW(const WCHAR*);
+CX_LOGGING_API(int) LogWarningW(const WCHAR*);
+CX_LOGGING_API(int) LogErrorW(const WCHAR*);
+CX_LOGGING_API(int) LogCriticalW(const WCHAR*);
+CX_LOGGING_API(int) LogTraceW(const WCHAR*);
 #endif
