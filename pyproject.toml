@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cx_Logging"
+description = "Python and C interfaces for logging"
+readme = "README.txt"
+authors = [{name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"}]
+keywords = ["logging"]
+license = {text = "Python Software Foundation License"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Python Software Foundation License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: C",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+requires-python = ">=3.6"
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/anthony-tuininga/cx_Logging"
+
+[tool.setuptools]
+zip-safe = false
+license-files = ["LICENSE.txt"]
+include-package-data = false
