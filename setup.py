@@ -1,29 +1,23 @@
 """
-Distutils script for cx_Logging.
+Setuptools script for cx_Logging.
 
 python setup.py build install
 """
 
-import distutils.command.build_ext
-import distutils.command.install_data
-import distutils.util
 import os
 import sys
 
-# if setuptools is detected, use it to add support for eggs
-try:
-    from setuptools import setup, Extension
-except ImportError:
-    from distutils.core import setup
-    from distutils.extension import Extension
+from setuptools import setup, Extension
+import setuptools.command.build_ext
+import setuptools.command.install
 
 BUILD_VERSION = "3.1"
 
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
-class build_ext(distutils.command.build_ext.build_ext):
+class build_ext(setuptools.command.build_ext.build_ext):
     if sys.platform == "win32":
-        user_options = distutils.command.build_ext.build_ext.user_options + [
+        user_options = setuptools.command.build_ext.build_ext.user_options + [
                 ('build-implib=', None,
                 'directory for import library')
         ]
@@ -50,40 +44,43 @@ class build_ext(distutils.command.build_ext.build_ext):
                 extra_link_args.append("-Wl,-so%s" % file_name)
             else:
                 extra_link_args.append("-Wl,-soname,%s" % file_name)
-        distutils.command.build_ext.build_ext.build_extension(self, ext)
+        super().build_extension(ext)
 
     def finalize_options(self):
-        distutils.command.build_ext.build_ext.finalize_options(self)
+        super().finalize_options()
         if sys.platform == "win32" and self.build_implib is None:
-            target_dir = "implib.%s-%s" % \
-                    (distutils.util.get_platform(), sys.version[:3])
-            self.build_implib = os.path.join("build", target_dir)
+            build_dir = os.path.dirname(self.build_lib)
+            target_dir = "imp" + os.path.basename(self.build_lib)
+            self.build_implib = os.path.join(build_dir, target_dir)
 
     def initialize_options(self):
-        distutils.command.build_ext.build_ext.initialize_options(self)
+        super().initialize_options()
         if sys.platform == "win32":
             self.build_implib = None
 
 
 # define class to ensure that the import library and include file is installed
 # properly; this is relevant on Windows platform only.
-class install_data(distutils.command.install_data.install_data):
+class install(setuptools.command.install.install):
 
     def run(self):
-        distutils.command.install_data.install_data.run(self)
+        super().run()
         if sys.platform == "win32":
+            # library (.lib or .a)
             command = self.get_finalized_command("build_ext")
-            target_dir = os.path.join(self.install_dir, "Libs")
+            if command.compiler.compiler_type == "msvc":
+                target_dir = os.path.join(self.install_data, "libs")
+            else:
+                target_dir = os.path.join(self.install_data, "lib")
             self.mkpath(target_dir)
             base_name = os.path.basename(command.import_library_name)
             target_file_name = os.path.join(target_dir, base_name)
             self.copy_file(command.import_library_name, target_file_name)
-            self.outfiles.append(target_file_name)
-            target_dir = os.path.join(self.install_dir, "Include")
+            # include file
+            target_dir = os.path.join(self.install_data, "include")
             self.mkpath(target_dir)
             target_file_name = os.path.join(target_dir, "cx_Logging.h")
-            self.copy_file("src\\cx_Logging.h", target_file_name)
-            self.outfiles.append(target_file_name)
+            self.copy_file("src/cx_Logging.h", target_file_name)
 
 
 # setup macros
@@ -152,6 +149,6 @@ extension = Extension(
 
 # perform the setup
 setup(
-        cmdclass=dict(build_ext=build_ext, install_data=install_data),
+        cmdclass={"build_ext": build_ext, "install": install},
         version=BUILD_VERSION,
         ext_modules=[extension])
