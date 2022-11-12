@@ -6,6 +6,10 @@ cx_Logging Release Notes
 Version 3.1 (TBD)
 -----------------
 
+#)  Moved metadata to pyproject.toml
+    (`PR 9 <https://github.com/anthony-tuininga/cx_Logging/pull/9>`__).
+#)  Moved setup.py to use setuptools instead of distutils
+    (`PR 8 <https://github.com/anthony-tuininga/cx_Logging/pull/8>`__).
 #)  Corrected build for Python 3.11
     (`PR 7 <https://github.com/anthony-tuininga/cx_Logging/pull/7>`__).
 #)  Use "deny write" (`SH_DENYWR`) when opening the log file in Windows in
