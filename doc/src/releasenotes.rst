@@ -6,10 +6,16 @@ cx_Logging Release Notes
 Version 3.1 (TBD)
 -----------------
 
-#)  On Windows, include cx_Logging.h in the wheel as well (`pull request 4
-    <https://github.com/anthony-tuininga/cx_Logging/pull/4>`__).
-#)  Use text files as metadata for wheels (`pull request 5
-    <https://github.com/anthony-tuininga/cx_Logging/pull/5>`__).
+#)  Corrected build for Python 3.11
+    (`PR 7 <https://github.com/anthony-tuininga/cx_Logging/pull/7>`__).
+#)  Use "deny write" (`SH_DENYWR`) when opening the log file in Windows in
+    order to prevent multiple threads from opening the same file when
+    `reuse=False`
+    (`PR 6 <https://github.com/anthony-tuininga/cx_Logging/pull/6>`__).
+#)  On Windows, include cx_Logging.h in the wheel as well
+    (`PR 4 <https://github.com/anthony-tuininga/cx_Logging/pull/4>`__).
+#)  Use text files as metadata for wheels
+    (`PR 5 <https://github.com/anthony-tuininga/cx_Logging/pull/5>`__).
 #)  Convert Python code to be PEP 8 compliant.
 
 
