@@ -68,10 +68,7 @@ class install(setuptools.command.install.install):
         if sys.platform == "win32":
             # library (.lib or .a)
             command = self.get_finalized_command("build_ext")
-            if command.compiler.compiler_type == "msvc":
-                target_dir = os.path.join(self.install_data, "libs")
-            else:
-                target_dir = os.path.join(self.install_data, "lib")
+            target_dir = os.path.join(self.install_data, "libs")
             self.mkpath(target_dir)
             base_name = os.path.basename(command.import_library_name)
             target_file_name = os.path.join(target_dir, base_name)
@@ -149,6 +146,6 @@ extension = Extension(
 
 # perform the setup
 setup(
-        cmdclass={"build_ext": build_ext, "install": install},
+        cmdclass=dict(build_ext=build_ext, install=install),
         version=BUILD_VERSION,
         ext_modules=[extension])
