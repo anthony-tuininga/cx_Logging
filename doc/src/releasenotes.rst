@@ -6,6 +6,8 @@ cx_Logging Release Notes
 Version 3.1 (TBD)
 -----------------
 
+#)  Fix file layout for mingw
+    (`PR 11 <https://github.com/anthony-tuininga/cx_Logging/pull/11>`__).
 #)  Use WCHAR instead of OLECHAR on Windows
     (`PR 10 <https://github.com/anthony-tuininga/cx_Logging/pull/10>`__).
 #)  Moved metadata to pyproject.toml
