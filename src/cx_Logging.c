@@ -1364,7 +1364,7 @@ CX_LOGGING_API(int) LogGUID(
     const char *prefix,                 // prefix to print in front of it
     const IID *iid)                     // interface to print
 {
-    OLECHAR str[128];
+    WCHAR str[128];
     char outstr[128];
     size_t strLength;
     int result = 0;
@@ -2545,11 +2545,11 @@ PyMODINIT_FUNC PyInit_cx_Logging(void)
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) StartLoggingW(
-    const OLECHAR *fileName,            // name of file to write to
+    const WCHAR *fileName,              // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
     unsigned long maxFileSize,          // maximum size of each file
-    const OLECHAR *prefix)              // prefix to use in logging
+    const WCHAR *prefix)                // prefix to use in logging
 {
     ExceptionInfo exceptionInfo;
 
@@ -2563,11 +2563,11 @@ CX_LOGGING_API(int) StartLoggingW(
 //   Start logging to the specified file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) StartLoggingExW(
-    const OLECHAR *fileName,            // name of file to write to
+    const WCHAR *fileName,              // name of file to write to
     unsigned long level,                // level to use for logging
     unsigned long maxFiles,             // maximum number of files to have
     unsigned long maxFileSize,          // maximum size of each file
-    const OLECHAR *prefix,              // prefix to use in logging
+    const WCHAR *prefix,                // prefix to use in logging
     int reuseExistingFiles,             // reuse existing files?
     int rotateFiles,                    // rotate files?
     ExceptionInfo *exceptionInfo)       // exception information (OUT)
@@ -2598,7 +2598,7 @@ CX_LOGGING_API(int) StartLoggingExW(
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) LogMessageW(
     unsigned long level,                // level at which to log
-    const OLECHAR *message)             // message to log
+    const WCHAR *message)               // message to log
 {
     char *tempMessage;
     size_t size;
@@ -2617,7 +2617,7 @@ CX_LOGGING_API(int) LogMessageW(
 //   Log a message at level LOG_LEVEL_DEBUG to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) LogDebugW(
-    const OLECHAR *message)             // message to log
+    const WCHAR *message)               // message to log
 {
     return LogMessageW(LOG_LEVEL_DEBUG, message);
 }
@@ -2628,7 +2628,7 @@ CX_LOGGING_API(int) LogDebugW(
 //   Log a message at level LOG_LEVEL_INFO to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) LogInfoW(
-    const OLECHAR *message)             // message to log
+    const WCHAR *message)               // message to log
 {
     return LogMessageW(LOG_LEVEL_INFO, message);
 }
@@ -2639,7 +2639,7 @@ CX_LOGGING_API(int) LogInfoW(
 //   Log a message at level LOG_LEVEL_WARNING to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) LogWarningW(
-    const OLECHAR *message)             // message to log
+    const WCHAR *message)               // message to log
 {
     return LogMessageW(LOG_LEVEL_WARNING, message);
 }
@@ -2650,7 +2650,7 @@ CX_LOGGING_API(int) LogWarningW(
 //   Log a message at level LOG_LEVEL_ERROR to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) LogErrorW(
-    const OLECHAR *message)             // message to log
+    const WCHAR *message)               // message to log
 {
     return LogMessageW(LOG_LEVEL_ERROR, message);
 }
@@ -2661,7 +2661,7 @@ CX_LOGGING_API(int) LogErrorW(
 //   Log a message at level LOG_LEVEL_CRITICAL to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) LogCriticalW(
-    const OLECHAR *message)             // message to log
+    const WCHAR *message)               // message to log
 {
     return LogMessageW(LOG_LEVEL_CRITICAL, message);
 }
@@ -2672,7 +2672,7 @@ CX_LOGGING_API(int) LogCriticalW(
 //   Log a message regardless of the current logging level to the log file.
 //-----------------------------------------------------------------------------
 CX_LOGGING_API(int) LogTraceW(
-    const OLECHAR *message)             // message to log
+    const WCHAR *message)               // message to log
 {
     return LogMessageW(LOG_LEVEL_NONE, message);
 }
