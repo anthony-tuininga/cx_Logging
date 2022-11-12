@@ -6,6 +6,8 @@ cx_Logging Release Notes
 Version 3.1 (TBD)
 -----------------
 
+#)  Use WCHAR instead of OLECHAR on Windows
+    (`PR 10 <https://github.com/anthony-tuininga/cx_Logging/pull/10>`__).
 #)  Moved metadata to pyproject.toml
     (`PR 9 <https://github.com/anthony-tuininga/cx_Logging/pull/9>`__).
 #)  Moved setup.py to use setuptools instead of distutils
