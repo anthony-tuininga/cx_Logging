@@ -30,3 +30,13 @@ Homepage = "https://github.com/anthony-tuininga/cx_Logging"
 zip-safe = false
 license-files = ["LICENSE.txt"]
 include-package-data = false
+
+[tool.cibuildwheel]
+build-verbosity = "1"
+
+[tool.cibuildwheel.linux]
+build = "cp3*-manylinux_*"
+archs = "x86_64 aarch64"
+
+[tool.cibuildwheel.windows]
+build = "cp3*"
