@@ -8,6 +8,7 @@
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
+import os
 import sys
 
 # If your extensions are in another directory, add it here.
@@ -37,9 +38,9 @@ copyright = '2018, Anthony Tuininga'
 # other places throughout the built documents.
 #
 # The short X.Y version.
-version = '3.0'
-# The full version, including alpha/beta/rc tags.
-release = '3.0'
+with open(os.path.join("..", "..", "VERSION")) as f:
+    release = f.read().strip()
+    version = ".".join(release.split(".")[:2])
 
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:

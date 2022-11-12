@@ -1,4 +1,5 @@
 include MANIFEST.in
 include *.txt
+include VERSION
 recursive-include src *.h *.c
 recursive-include doc *.rst

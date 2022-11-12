@@ -8,7 +8,7 @@ License
 
 .. centered:: **LICENSE AGREEMENT FOR CX_LOGGING**
 
-Copyright |copy| 2007-2021, Anthony Tuininga. All rights reserved.
+Copyright |copy| 2007-2022, Anthony Tuininga. All rights reserved.
 
 Copyright |copy| 2004-2007, Computronix (Canada) Ltd., Edmonton, Alberta,
 Canada. All rights reserved.

@@ -2,15 +2,13 @@
 
 .. include:: <isonum.txt>
 
-**********
-cx_Logging  
-**********
+********************
+cx_Logging |release|
+********************
 
 :Author: Anthony Tuininga
 
 :Date: |today|
-
-.. |release| replace:: HEAD
 
 .. % date of release
 .. % software release
@@ -24,8 +22,7 @@ cx_Logging
 Front Matter
 ************
 
-
-Copyright |copy| 2007-2018 Anthony Tuininga. All rights reserved.
+Copyright |copy| 2007-2022 Anthony Tuininga. All rights reserved.
 
 Copyright |copy| 2004-2007 Computronix. All rights reserved.
 
@@ -51,4 +48,3 @@ Contents:
    license.rst
 
 * :ref:`genindex`
-

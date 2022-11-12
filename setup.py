@@ -11,7 +11,8 @@ from setuptools import setup, Extension
 import setuptools.command.build_ext
 import setuptools.command.install
 
-BUILD_VERSION = "3.1"
+with open("VERSION") as f:
+    BUILD_VERSION = f.read().strip()
 
 # define class to ensure that linking against the library works for normal
 # C programs while maintaining the name that Python expects
