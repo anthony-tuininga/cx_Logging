@@ -3,8 +3,8 @@
 cx_Logging Release Notes
 ========================
 
-Version 3.1 (TBD)
------------------
+Version 3.1 (November 2022)
+---------------------------
 
 #)  Fix file layout for mingw
     (`PR 11 <https://github.com/anthony-tuininga/cx_Logging/pull/11>`__).
