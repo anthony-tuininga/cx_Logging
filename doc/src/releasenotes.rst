@@ -6,6 +6,7 @@ cx_Logging Release Notes
 Version 3.1 (November 2022)
 ---------------------------
 
+#)  Support is now for Python 3.7 and higher.
 #)  Fix file layout for mingw
     (`PR 11 <https://github.com/anthony-tuininga/cx_Logging/pull/11>`__).
 #)  Use WCHAR instead of OLECHAR on Windows
