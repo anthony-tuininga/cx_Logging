@@ -46,9 +46,40 @@ jobs:
           platforms: arm64
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.2
+        uses: pypa/cibuildwheel@v2.16.5
 
       - uses: actions/upload-artifact@v4
         with:
           name: cx-logging-${{ matrix.os }}
           path: wheelhouse
+
+  publish:
+    name: Publish package to PyPI
+    if: github.event_name == 'release' && startsWith(github.ref, 'refs/tags')
+    needs:
+      - build_sdist
+      - build_wheels
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/cx-Logging
+    permissions:
+      id-token: write
+    steps:
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Join files to upload
+        run: |
+          mkdir -p wheelhouse
+          mv artifacts/cx-logging-*/* wheelhouse/
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: wheelhouse/
+          skip-existing: true
+          verbose: true
