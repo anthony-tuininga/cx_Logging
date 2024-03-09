@@ -511,6 +511,31 @@ static int GetEncodedStringForPython(
 
 
 //-----------------------------------------------------------------------------
+// GetEncodedFileName()
+//   Return the file name object encoded with the file system encoding.
+//-----------------------------------------------------------------------------
+static char* GetEncodedFileName(
+    PyObject *fileNameObj)              // file name object (unicode)
+{
+    Py_ssize_t bufLen;
+    PyObject *bytesObj;
+    const char *buf;
+    char *returnBuf;
+
+    bytesObj = PyUnicode_EncodeFSDefault(fileNameObj);
+    if (!bytesObj)
+        return NULL;
+    bufLen = PyBytes_GET_SIZE(bytesObj);
+    returnBuf = PyMem_Malloc(bufLen + 1);
+    if (!returnBuf)
+        return NULL;
+    memcpy(returnBuf, PyBytes_AS_STRING(bytesObj), bufLen);
+    returnBuf[bufLen] = '\0';
+    return returnBuf;
+}
+
+
+//-----------------------------------------------------------------------------
 // SetEncodingHelper()
 //   Set the encoding value for Python.
 //-----------------------------------------------------------------------------
@@ -1921,7 +1946,7 @@ static PyObject* StartLoggingForPython(
     PyObject *keywordArgs)              // keyword arguments
 {
     unsigned long level, maxFiles, maxFileSize;
-    PyObject *encoding, *reuseObj, *rotateObj;
+    PyObject *encoding, *fileNameObj;
     ExceptionInfo exceptionInfo;
     char *fileName, *prefix;
     int reuse, rotate;
@@ -1929,24 +1954,15 @@ static PyObject* StartLoggingForPython(
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
-    reuseObj = rotateObj = NULL;
     encoding = NULL;
     reuse = rotate = 1;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsOOO",
-            gStartLoggingWithFileKeywordList, Py_FileSystemDefaultEncoding,
-            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding,
-            &reuseObj, &rotateObj))
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "Ul|llsOpp",
+            gStartLoggingWithFileKeywordList, &fileNameObj, &level, &maxFiles,
+            &maxFileSize, &prefix, &encoding, &reuse, &rotate))
         return NULL;
-    if (reuseObj) {
-        reuse = PyObject_IsTrue(reuseObj);
-        if (reuse < 0)
-            return NULL;
-    }
-    if (rotateObj) {
-        rotate = PyObject_IsTrue(rotateObj);
-        if (rotate < 0)
-            return NULL;
-    }
+    fileName = GetEncodedFileName(fileNameObj);
+    if (!fileName)
+        return NULL;
     if (StartLoggingEx(fileName, level, maxFiles, maxFileSize, prefix,
             reuse, rotate, &exceptionInfo) < 0) {
         PyMem_Free(fileName);
@@ -2022,31 +2038,22 @@ static PyObject *StartLoggingForThreadForPython(
     PyObject *keywordArgs)              // keyword arguments
 {
     unsigned long level, maxFiles, maxFileSize;
-    PyObject *encoding, *reuseObj, *rotateObj;
+    PyObject *encoding, *fileNameObj;
     char *fileName, *prefix;
     int reuse, rotate;
 
     maxFiles = 1;
     maxFileSize = DEFAULT_MAX_FILE_SIZE;
     prefix = DEFAULT_PREFIX;
-    reuseObj = rotateObj = NULL;
     encoding = NULL;
     reuse = rotate = 1;
-    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "esl|llsOOO",
-            gStartLoggingWithFileKeywordList, Py_FileSystemDefaultEncoding,
-            &fileName, &level, &maxFiles, &maxFileSize, &prefix, &encoding,
-            &reuseObj, &rotateObj))
+    if (!PyArg_ParseTupleAndKeywords(args, keywordArgs, "Ul|llsOpp",
+            gStartLoggingWithFileKeywordList, &fileNameObj, &level, &maxFiles,
+            &maxFileSize, &prefix, &encoding, &reuse, &rotate))
         return NULL;
-    if (reuseObj) {
-        reuse = PyObject_IsTrue(reuseObj);
-        if (reuse < 0)
-            return NULL;
-    }
-    if (rotateObj) {
-        rotate = PyObject_IsTrue(rotateObj);
-        if (rotate < 0)
-            return NULL;
-    }
+    fileName = GetEncodedFileName(fileNameObj);
+    if (!fileName)
+        return NULL;
     if (StartLoggingForPythonThreadEx(fileName, level, maxFiles, maxFileSize,
             prefix, reuse, rotate) < 0) {
         PyMem_Free(fileName);
@@ -2165,15 +2172,11 @@ static PyObject* GetLoggingFileNameForPython(
 
     loggingState = GetLoggingState();
     if (loggingState)
-        return PyUnicode_Decode(loggingState->state->fileName,
-                strlen(loggingState->state->fileName),
-                Py_FileSystemDefaultEncoding, NULL);
+        return PyUnicode_DecodeFSDefault(loggingState->state->fileName);
     ACQUIRE_LOCK(gLoggingStateLock);
-    if (gLoggingState)
-        fileNameObj = PyUnicode_Decode(gLoggingState->fileName,
-                strlen(gLoggingState->fileName), Py_FileSystemDefaultEncoding,
-                NULL);
-    else {
+    if (gLoggingState) {
+        fileNameObj = PyUnicode_DecodeFSDefault(gLoggingState->fileName);
+    } else {
         Py_INCREF(Py_None);
         fileNameObj = Py_None;
     }
@@ -2716,4 +2719,3 @@ void __attribute__ ((destructor)) Finalize(void)
     StopLogging();
 }
 #endif
-
