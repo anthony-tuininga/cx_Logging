@@ -22,7 +22,7 @@ cx_Logging |release|
 Front Matter
 ************
 
-Copyright |copy| 2007-2022 Anthony Tuininga. All rights reserved.
+Copyright |copy| 2007-2024 Anthony Tuininga. All rights reserved.
 
 Copyright |copy| 2004-2007 Computronix. All rights reserved.
 

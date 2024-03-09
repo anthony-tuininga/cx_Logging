@@ -10,4 +10,3 @@ available publicly depend on this module.
 Please see the included documentation for additional information. Note that
 the documentation is a work in progress. It is currently only suitable as
 reference material but I intend to supplement this documentation over time.
-

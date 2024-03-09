@@ -12,4 +12,3 @@ http://www.sphinx-doc.org
 
 Once Sphinx is installed, the supplied Makefile can be used to build the
 different targets.
-

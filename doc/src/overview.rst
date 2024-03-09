@@ -75,4 +75,3 @@ Rotate
 This parameter specifies whether a new log file should be started when a log
 file reaches the `Maximum File Size`_. The default value of this parameter is
 True but it has no effect unless `Maximum Files`_ is greater than 1.
-

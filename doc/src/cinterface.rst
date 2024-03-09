@@ -13,7 +13,7 @@ Starting Logging
 ----------------
 
 .. note::
-   
+
    See the :ref:`overview` for more information on the parameters specified
    here.
 
@@ -213,4 +213,3 @@ Logging State
 .. c:function:: int SetLoggingState(udt_LoggingState* state)
 
    Set the logging state for the current Python thread.
-

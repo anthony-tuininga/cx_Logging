@@ -10,6 +10,7 @@ Version 3.2 (March 2024)
 #)  Added ``cx_Logging.__version__`` for compatibility with other Python
     modules that assume this attribute is present.
 #)  Eliminated use of deprecated file system encoding global.
+#)  Black and ruff are now used to format and lint Python code.
 
 
 Version 3.1 (November 2022)
@@ -140,4 +141,3 @@ Version 1.1 (January 2006)
 #)  Raise an exception if a write fails during logging.
 #)  Add module constants version and buildtime in order to aid in support and
     debugging.
-

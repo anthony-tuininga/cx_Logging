@@ -11,7 +11,7 @@ Starting Logging
 ----------------
 
 .. note::
-   
+
    See the :ref:`overview` for more information on the parameters specified
    here.
 
@@ -238,4 +238,3 @@ Constants
 .. data:: WARNING
 
    The level at which warning messages are logged.
-
