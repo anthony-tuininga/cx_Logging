@@ -2491,6 +2491,9 @@ static PyObject *Module_Initialize(void)
         return NULL;
 
     // add version and build time for easier support
+    if (PyModule_AddStringConstant(module, "__version__",
+            BUILD_VERSION_STRING) < 0)
+        return NULL;
     if (PyModule_AddStringConstant(module, "version",
             BUILD_VERSION_STRING) < 0)
         return NULL;
