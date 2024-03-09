@@ -3,6 +3,15 @@
 cx_Logging Release Notes
 ========================
 
+Version 3.2 (March 2024)
+------------------------
+
+#)  Support is now for Python 3.8 and higher.
+#)  Added ``cx_Logging.__version__`` for compatibility with other Python
+    modules that assume this attribute is present.
+#)  Eliminated use of deprecated file system encoding global.
+
+
 Version 3.1 (November 2022)
 ---------------------------
 
