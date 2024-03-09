@@ -8,11 +8,11 @@ description = "Python and C interfaces for logging"
 readme = "README.txt"
 authors = [{name = "Anthony Tuininga", email = "anthony.tuininga@gmail.com"}]
 keywords = ["logging"]
-license = {text = "Python Software Foundation License"}
+license = {text = "BSD License"}
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Python Software Foundation License",
+    "License :: OSI Approved :: BSD License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: C",
