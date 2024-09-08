@@ -1,5 +1,7 @@
 [build-system]
-requires = ["setuptools>=61.2"]
+requires = [
+    "setuptools>=70.1,<75",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -20,7 +22,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dynamic = ["version"]
 
 [project.urls]
