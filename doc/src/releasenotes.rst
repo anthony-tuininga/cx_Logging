@@ -3,6 +3,12 @@
 cx_Logging Release Notes
 ========================
 
+Version 3.2.1 (October 2024)
+----------------------------
+
+#)  Added support for Python 3.13. Support is now for Python 3.9 and higher.
+
+
 Version 3.2 (March 2024)
 ------------------------
 
