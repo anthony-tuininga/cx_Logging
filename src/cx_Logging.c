@@ -7,7 +7,6 @@
 
 #ifndef UNDER_CE
 #include <sys/types.h>
-#include <sys/time.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #endif
@@ -35,6 +34,7 @@
 #define ACQUIRE_LOCK(lock)      EnterCriticalSection(&lock)
 #define RELEASE_LOCK(lock)      LeaveCriticalSection(&lock)
 #else
+#include <sys/time.h>
 #define INITIALIZE_LOCK(lock)   sem_init(&lock, 0, 1)
 #define ACQUIRE_LOCK(lock)      sem_wait(&lock)
 #define RELEASE_LOCK(lock)      sem_post(&lock)
