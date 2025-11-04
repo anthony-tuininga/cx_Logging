@@ -64,7 +64,6 @@ class build_ext(setuptools.command.build_ext.build_ext):
 # define class to ensure that the import library and include file is installed
 # properly; this is relevant on Windows platform only.
 class install(setuptools.command.install.install):
-
     def run(self):
         super().run()
         if sys.platform == "win32":

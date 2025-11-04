@@ -13,26 +13,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           cache: 'pip'
           python-version: '3.12'
 
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
       - name: Build wheels
-        run: |
-          python -m pip install --upgrade cibuildwheel
-          cibuildwheel --output-dir wheelhouse --prerelease-pythons
+        run: python -m pip install --upgrade cibuildwheel && cibuildwheel
 
       - name: Add sdist
         if: runner.os == 'Linux'
@@ -40,7 +32,7 @@ jobs:
           python -m pip install --upgrade pip build
           python -m build . --sdist -o wheelhouse
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: cx-logging-${{ matrix.os }}
           path: wheelhouse
@@ -59,14 +51,11 @@ jobs:
     steps:
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
-          path: artifacts
-
-      - name: Join files to upload
-        run: |
-          mkdir -p wheelhouse
-          mv artifacts/cx-logging-*/* wheelhouse/
+          path: wheelhouse
+          pattern: cx-logging-*
+          merge-multiple: true
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
